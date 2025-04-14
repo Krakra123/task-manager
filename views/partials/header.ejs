@@ -1,0 +1,33 @@
+<link rel="stylesheet" href="/css/header.css">
+<header class="header">
+
+    <nav class="header-left">
+        <a href="/" class="header-logo">TaskManager</a>
+        <a href="/" class="">HOME</a>
+        <a href="/about" class="">ABOUT</a>
+    </nav>
+
+    <div class="header-right">
+
+        <% if (locals.user) { %>
+
+            <div class="dropdown">
+                <button class="btn dropdown-toggle" type="button" id="userDropdown"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                    <%= user.username || 'Quest' %>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                </ul>
+            </div>
+
+        <% } else { %>
+
+            <ul>
+                <li><a href="/login" class="btn header-button">LOG IN</a></li>
+                <li><a href="/signup" class="btn header-button">SIGN UP</a></li>
+            </ul>
+
+        <% } %>
+    </div>
+</header>
