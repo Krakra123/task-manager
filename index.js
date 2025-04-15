@@ -4,11 +4,13 @@ const express = require('express');
 const expressLayout = require('express-ejs-layouts');
 
 const connectDB = require('./server/config/db');
+const createSession = require('./server/config/session');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 connectDB().then(r => {});
+createSession(app);
 
 app.use(express.static('public'));
 
