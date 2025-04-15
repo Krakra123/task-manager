@@ -1,6 +1,5 @@
-const userCollection = require("../models/user");
+const userCollection = require("../models/user-model");
 const crypto = require("crypto");
-const auth = require("./auth");
 
 const verify = async (username, password) => {
     try {

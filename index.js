@@ -22,7 +22,7 @@ app.set('layout', './layouts/main');
 app.set('view engine', 'ejs');
 
 // Define your routes AFTER setting up layouts
-app.use('/', require('./server/routes/main'));
+app.use('/', require('./server/routes/main-route'));
 
 app.listen(PORT, () => {
     console.log(`Running on port http://localhost:${PORT}/`);

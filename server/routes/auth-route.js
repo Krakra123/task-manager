@@ -10,7 +10,7 @@ router.get('/login', (req, res) => {
         errorCode: req.params.s
     }
 
-    res.render('partials/login-signup', locals);
+    res.render('form/login-signup', locals);
 })
 router.get('/signup', (req, res) => {
     const locals = {
@@ -19,7 +19,7 @@ router.get('/signup', (req, res) => {
         errorCode: req.params.s
     }
 
-    res.render('partials/login-signup', locals);
+    res.render('form/login-signup', locals);
 })
 
 router.post('/login', async (req, res) => {
@@ -33,7 +33,7 @@ router.post('/login', async (req, res) => {
                 name: 'Login',
                 errorCode: 1
             }
-            res.render('partials/login-signup', locals);
+            res.render('form/login-signup', locals);
         }
     } catch (err) {
         console.error(`Login error: ${err}`);
@@ -47,14 +47,14 @@ router.post('/signup', async (req, res) => {
                     name: 'Login',
                     errorCode: 9
                 }
-                res.render('partials/login-signup', locals);
+                res.render('form/login-signup', locals);
             } else {
                 const locals = {
                     type: 'signup',
                     name: 'Signup',
                     errorCode: 2
                 }
-                res.render('partials/login-signup', locals);
+                res.render('form/login-signup', locals);
             }
         } catch
             (err) {

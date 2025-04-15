@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;600;700&display=swap');
 
 :root {
-    --color-font-base: #1c1c1c;
-    --color-background: #f6f6f6;
-    --color-button-bg: #1c1c1c;
+    --color-font-base: #efefef;
+    --color-background: #2e2c30;
+    --color-button-bg: #153998;
     --color-button-font: #f6f6f6;
 
     --font-size-base: 1rem;
