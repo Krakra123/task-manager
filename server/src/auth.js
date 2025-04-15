@@ -1,44 +1,35 @@
 const userCollection = require("../models/user");
 const crypto = require("crypto");
+const auth = require("./auth");
 
-const verifyUser = async (req) => {
+const verify = async (username, password) => {
     try {
         const check = await userCollection.findOne({
-            username: req.body.username
+            username: username
         })
 
-        return check.password === crypto.createHash('sha256').update(req.body.password).digest('hex');
-
+        return check.password === crypto.createHash('sha256').update(password).digest('hex');
     } catch (err) {
         console.log(`Verify failed: ${err}`);
         return false;
     }
 }
 
-const login = async (req) => {
+const login = async (username, password) => {
     try {
-        if (await verifyUser(req)) {
-            req.session.user = {
-                username: req.body.username,
-            }
-
-            return true;
-        } else {
-            return false;
-        }
+        return await verify(username, password);
     } catch (err) {
         console.log(`Login failed: ${err}`);
         return false;
     }
 }
 
-const registerUser = async (req) => {
+const register = async (username, password) => {
     try {
-        const data = {
-            username: req.body.username,
-            password: crypto.createHash('sha256').update(req.body.password).digest('hex')
-        }
-        await userCollection.insertOne(data)
+        await userCollection.insertOne({
+            username: username,
+            password: crypto.createHash('sha256').update(password).digest('hex')
+        });
 
         return true;
     } catch (err) {
@@ -48,7 +39,7 @@ const registerUser = async (req) => {
 }
 
 module.exports = {
-    verifyUser,
+    verify,
     login,
-    registerUser
+    register
 }

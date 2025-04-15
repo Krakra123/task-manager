@@ -3,22 +3,14 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
     const locals = {
-        title: 'Hoc',
-        description: 'Koc nua ',
         user: req.session.user
     }
 
     res.render('index', locals);
 });
 
-router.get('/login', (req, res) => {
-    req.session.user = 'abc';
-    res.redirect('/');
-})
+const authRoutes = require('./auth');
 
-router.get('/logout', (req, res) => {
-    req.session.user = null;
-    res.redirect('/');
-})
+router.use('/', authRoutes);
 
 module.exports = router;

@@ -1,0 +1,35 @@
+<div class="login-req-card">
+    <div class="header">
+        <h4>
+            <%= locals.name %>
+        </h4>
+    </div>
+    <div class="card-body">
+        <% if (locals.errorCode > 0) { %>
+            <% if (locals.errorCode === 9) { %>
+                <div class="alert alert-success" role="alert">Register successful</div>
+            <% } else if (locals.errorCode === 1) { %>
+                <div class="alert alert-danger" role="alert">Wrong Username or Password</div>
+            <% } else { %>
+                <div class="alert alert-danger" role="alert">Invalid</div>
+            <% } %>
+        <% } %>
+        <form action="/<%= locals.type %>" method="POST">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <%= locals.name %>
+            </button>
+        </form>
+        <% if (locals.type === 'login') { %>
+            <hr>
+            <p class="mt-3">Don't have an account? <a href="/signup">Sign Up</a></p>
+        <% } %>
+    </div>
+</div>
