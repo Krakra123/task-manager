@@ -8,19 +8,21 @@
     <div class="main-container">
         <div id="column-container" class="column-container">
 
+            <div id="column-create-container">
+                <button id="column-create-button" class="btn">Create Board</button>
+            </div>
         </div>
     </div>
 
 </div>
 
 <template id="board-column-template">
-    <div class="board-column">-->
-        <div class="title">
-            COLUMN
-<!--            <h3 class="name" data-tasks="0"></h3>-->
-<!--            <button data-add><i class="bi bi-plus"></i></button>-->
+    <div class="board-column">
+        <div class="column-header">
+            <h3 id="title"></h3>
+            <button data-add><i class="bi bi-plus"></i></button>
         </div>
-<!--        <div class="tasks"></div>-->
+        <div class="tasks"></div>
     </div>
 </template>
 

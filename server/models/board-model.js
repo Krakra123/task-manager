@@ -11,7 +11,7 @@ const boardSchema = new schema({
     columns: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'BoardColumn',
+            ref: 'Column',
         },
     ],
 
@@ -24,11 +24,50 @@ const boardSchema = new schema({
         default: Date.now
     }
 })
-const boardColumnSchema = new schema({
+const columnSchema = new schema({
     title: {
         type: String,
         trim: true,
         required: true
+    },
+
+    tasks: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Task',
+        },
+    ],
+
+    board: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Board',
+    },
+
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    }
+})
+const taskSchema = new schema({
+    title: {
+        type: String,
+        trim: true,
+        required: true
+    },
+    description: {
+        type: String
+    },
+    dueDate: {
+        type: Date
+    },
+
+    column: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Column',
     },
 
     createdAt: {
@@ -43,5 +82,6 @@ const boardColumnSchema = new schema({
 
 module.exports = {
     boardCollection: mongoose.model('Board', boardSchema),
-    boardColumnCollection: mongoose.model('BoardColumn', boardColumnSchema)
+    boardColumnCollection: mongoose.model('Column', columnSchema),
+    taskCollection: mongoose.model('Task', taskSchema)
 };
