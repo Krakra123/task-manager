@@ -16,16 +16,25 @@ router.get('/board', async (req, res) => {
             console.error('Error boarding', err);
         }
     }
-
     const locals = {
+        user: req.session.user,
         boardName: req.session.board,
     }
 
     res.render('board/board', locals);
 })
 
+router.post('/board/get-all-cols', async (req, res) => {
+    const data = await boardManager.getAllColumn(req.session.board);
+    res.json(data);
+});
+
 router.post('/board/create-col', async (req, res) => {
-    await boardManager.createColumn(req.session.board, req.body.columnName);
+    res.send(boardManager.createColumn(req.session.board, req.body.columnName));
+})
+
+router.post('/board/delete-col', async (req, res) => {
+
 })
 
 module.exports = router;

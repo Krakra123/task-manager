@@ -90,7 +90,10 @@ const deleteColumn = async (columnID) => {
         console.error("Error deleting column: ", err.message);
     }
 }
-const getColumnByIndex = async (boardName, columnIndex) => {
+const getColumnById = async (columnID) => {
+    return columnCollection.findOne({_id: columnID});
+}
+const getColumnIDByIndex = async (boardName, columnIndex) => {
     try {
         const board = await boardCollection.findOne({title: boardName});
         if (!board) {
@@ -102,7 +105,7 @@ const getColumnByIndex = async (boardName, columnIndex) => {
         console.error("Error getting column by index: ", err.message);
     }
 }
-const getAllColumn = async (boardName) => {
+const getAllColumnID = async (boardName) => {
     try {
         const board = await boardCollection.findOne({title: boardName});
         if (!board) {
@@ -110,6 +113,17 @@ const getAllColumn = async (boardName) => {
         }
 
         return board.columns;
+    } catch (err) {
+        console.error("Error getting all column: ", err.message);
+    }
+}
+const getAllColumn = async (boardName) => {
+    try {
+        const columns = await boardCollection.findOne({title: boardName}).populate('columns');
+        if (!columns) {
+            console.error(`Error getting all column: Board ${boardName} not found.`);
+        }
+        return columns;
     } catch (err) {
         console.error("Error getting all column: ", err.message);
     }
@@ -157,7 +171,10 @@ const deleteTask = async (taskID) => {
         console.error("Error deleting task: ", err.message);
     }
 }
-const getTaskByIndex = async (columnID, taskIndex) => {
+const getTaskById = async (taskID) => {
+    return taskCollection.findOne({_id: taskID});
+}
+const getTaskIDByIndex = async (columnID, taskIndex) => {
     try {
         const column = await columnCollection.findOne({_id: columnID});
         if (!column) {
@@ -169,7 +186,7 @@ const getTaskByIndex = async (columnID, taskIndex) => {
         console.error("Error getting task by index: ", err.message);
     }
 }
-const getAllTask = async (columnID, taskIndex) => {
+const getAllTaskID = async (columnID) => {
     try {
         const column = await columnCollection.findOne({_id: columnID});
         if (!column) {
@@ -177,6 +194,17 @@ const getAllTask = async (columnID, taskIndex) => {
         }
 
         return column.tasks;
+    } catch (err) {
+        console.error("Error getting all task: ", err.message);
+    }
+}
+const getAllTask = async (columnID) => {
+    try {
+        const tasks = await columnCollection.findOne({_id: columnID}).populate('tasks');
+        if (!tasks) {
+            console.error("Error getting all task: Column not found.");
+        }
+        return tasks;
     } catch (err) {
         console.error("Error getting all task: ", err.message);
     }
@@ -190,11 +218,15 @@ module.exports = {
 
     createColumn,
     deleteColumn,
-    getColumnByIndex,
+    getColumnById,
+    getColumnIDByIndex,
+    getAllColumnID,
     getAllColumn,
 
     createTask,
     deleteTask,
-    getTaskByIndex,
+    getTaskById,
+    getTaskIDByIndex,
+    getAllTaskID,
     getAllTask,
 };

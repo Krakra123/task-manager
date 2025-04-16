@@ -1,6 +1,46 @@
 const columnCreateButton = document.getElementById("column-create-button");
 const columnCreateContainer = document.getElementById("column-create-container");
 
+const createColumn = (columnName) => {
+    fetch('/board/create-col', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({columnName})
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Request failed');
+            return response.text();
+        })
+        .catch(err => {
+            alert('Error: ' + err.message);
+        });
+
+    displayNewColumn(columnName);
+}
+
+const loadAllColumns = async () => {
+    fetch('/board/get-all-cols', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Request failed');
+            return response.json();
+        })
+        .then(data => {
+            data.columns.forEach(column => {
+                displayNewColumn(column.title);
+            });
+        })
+        .catch(err => {
+            console.error("Error loading columns:", err);
+        });
+}
+
 const handleCreateColumnButton = () => {
     const preButtonStyle = columnCreateButton.style.display;
     columnCreateButton.style.display = 'none';
@@ -23,28 +63,13 @@ const handleCreateColumnButton = () => {
     });
 }
 
-const createColumn = (columnName) => {
-    fetch('/board/create-col', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({columnName})
-    })
-        .then(response => {
-            if (!response.ok) throw new Error('Request failed');
-            return response.text();
-        })
-        .catch(err => {
-            alert('Error: ' + err.message);
-        });
-
-    displayNewColumn(columnName);
-}
-
 columnCreateButton.addEventListener('click', () => {
     handleCreateColumnButton();
 })
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadAllColumns().then();
+});
 
 const displayNewColumn = (columnName) => {
     const template = document.getElementById('board-column-template');

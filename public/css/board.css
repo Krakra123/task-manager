@@ -1,0 +1,172 @@
+.board {
+    --task-size: 48px;
+
+    background: var(--bg-color);
+    color: var(--color-font-base);
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+.board .create-col {
+    position: fixed;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    margin-left: 10px;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    background: var(--accent-primary);
+}
+
+.board .create-col:hover {
+    background: var(--accent-primary-hover);
+}
+
+.board .header {
+    position: fixed;
+    width: 100vw;
+    background: var(--secondary-color);
+    color: var(--text-color);
+    padding-top: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.75rem;
+}
+
+.board button {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    outline-color: var(--secondary-color);
+    color: var(--text-color);
+    transition: 0.3s;
+    opacity: 0.5;
+}
+
+.board button:is(:active, :hover) {
+    opacity: 1;
+}
+
+.board .column-container {
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+    gap: 1.5rem;
+    margin-top: 75px;
+    margin-left: 20px;
+    padding-right: 20px;
+}
+
+.board-column {
+    background: var(--secondary-color);
+    color: var(--text-color);
+
+    min-width: 20rem;
+    padding: 1rem 1rem;
+    border-radius: 1rem;
+    box-shadow: var(--primary-color) 2px 2px 1px;
+
+    display: grid;
+
+    grid-template-rows: var(--task-size) 1fr;
+    gap: 0.5rem;
+}
+
+.board-column button {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    outline-color: var(--secondary-color);
+    color: var(--text-color);
+    transition: 0.3s;
+    opacity: 0.5;
+}
+
+.board-column .title {
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.board-column .title h3 {
+    font-size: 1.15rem;
+    text-transform: uppercase;
+}
+
+.board-column .title h3::after {
+    content: attr(data-tasks);
+    background: var(--accent-primary);
+    margin-left: 0.5rem;
+    border-radius: 0.25rem;
+    padding: 0 0.25rem;
+}
+
+.board-column .title button {
+    margin-left: auto;
+    font-size: 2rem;
+}
+
+.board-column .tasks {
+    min-height: var(--task-size);
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+}
+
+.board-column .tasks > * {
+    background: var(--text-box-color);
+    max-width: 300px;
+    border-radius: 0.25rem;
+    text-wrap: wrap;
+    overflow-wrap: anywhere;
+    padding: 0.875rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+    min-height: var(--task-size);
+}
+
+.board-column .task {
+    cursor: move;
+    transition: 0.3s;
+}
+
+.board-column .task.dragging {
+    cursor: default;
+    box-shadow: none;
+    background: var(--accent-primary-hover);
+    opacity: 0.5;
+}
+
+.board-column .task.dragging * {
+    visibility: hidden;
+}
+
+.board-column .task:not(.dragging):hover {
+    background: var(--accent-primary-hover);
+}
+
+.board-column .task menu {
+    margin-top: 0.875rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.board-column .task button {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 1.25rem;
+}
+
+.board-column .task-input {
+    outline-color: var(--accent-primary);
+    outline-width: 0.15rem;
+    overflow-wrap: anywhere;
+}
+
+.board-column .task-input:empty::after {
+    content: attr(data-placeholder);
+    opacity: 0.5;
+}
