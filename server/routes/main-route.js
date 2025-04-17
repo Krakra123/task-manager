@@ -16,8 +16,10 @@ router.get('/', (req, res) => {
 
 const authRoutes = require('./auth-route');
 const boardRoutes = require('./board-route');
+const taskRoutes = require('./task-route');
 
 router.use('/', authRoutes);
 router.use('/', boardRoutes);
+router.use('/', taskRoutes);
 
 module.exports = router;
