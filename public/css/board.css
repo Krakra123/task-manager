@@ -1,197 +1,210 @@
-.board {
-    --task-size: 48px;
+/* board.css – Dark Theme Task Board (Auto Height Columns, Word Wrap & Rounded Clip) */
 
-    background: var(--bg-color);
-    color: var(--color-font-base);
+/* ==== THEME VARIABLES ==== */
+:root {
+    /* Dark theme colors */
+    --board-bg: #181818;
+    --column-bg: #242424;
+    --task-bg: #2e2e2e;
+  
+    --text-color: #e0e0e0;
+    --accent-primary: #4e8cff;
+    --accent-primary-hover: #3a6edb;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --shadow-light: rgba(0, 0, 0, 0.5);
+  
+    --radius: 8px;
+    --spacing: 1rem;
+    --transition: 0.3s;
+    --task-height: 3rem;
+  }
+  
+  /* ==== BOARD LAYOUT ==== */
+  .board {
+    background-color: var(--board-bg);
+    color: var(--text-color);
     min-height: 100vh;
-    display: grid;
-    grid-template-rows: auto 1fr;
-}
-
-.board .create-col {
-    position: fixed;
-    margin-top: 10px;
-    margin-bottom: 5px;
-    margin-left: 10px;
-    border: none;
-    cursor: pointer;
-    text-align: left;
-    background: var(--accent-primary);
-}
-
-.board .create-col:hover {
-    background: var(--accent-primary-hover);
-}
-
-.board .header {
-    position: fixed;
-    width: 100vw;
-    background: var(--secondary-color);
-    color: var(--text-color);
-    padding-top: 10px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 1.75rem;
-}
-
-.board button {
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    outline-color: var(--secondary-color);
-    color: var(--text-color);
-    transition: 0.3s;
-    opacity: 0.5;
-}
-
-.board button:is(:active, :hover) {
-    opacity: 1;
-}
-
-.board .column-container {
     display: flex;
-    flex-direction: row;
-    align-items: start;
-    gap: 1.5rem;
-    margin-top: 75px;
-    margin-left: 20px;
-    padding-right: 20px;
-}
-
-.board-column {
-    background: var(--secondary-color);
+    flex-direction: column;
+  }
+  
+  /* Header */
+  .board .board-header {
+    position: sticky;
+    top: 0;
+    background-color: var(--column-bg);
+    padding: var(--spacing);
+    text-align: center;
+    font-size: 1.75rem;
+    font-weight: bold;
+    box-shadow: 0 2px 4px var(--shadow-light);
+    z-index: 10;
+  }
+  
+  /* Column Container */
+  .board .column-container {
+    display: flex;
+    align-items: flex-start;
+    gap: calc(var(--spacing) * 2);
+    padding: var(--spacing);
+    overflow-x: auto;
+    scroll-behavior: smooth;
+  }
+  
+  /* ==== COLUMNS ==== */
+  .board-column {
+    background-color: var(--column-bg);
     color: var(--text-color);
-
     min-width: 20rem;
-    padding: 1rem 1rem;
-    border-radius: 1rem;
-    box-shadow: var(--primary-color) 2px 2px 1px;
-
-    display: grid;
-
-    grid-template-rows: var(--task-size) 1fr;
-    gap: 0.5rem;
-}
-
-.board-column button {
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    outline-color: var(--secondary-color);
-    color: var(--text-color);
-    transition: 0.3s;
-    opacity: 0.5;
-}
-
-.board-column .title {
+    max-width: 20rem;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 8px var(--shadow-light);
+    transition: transform var(--transition);
+    overflow: hidden; /* ensure rounding clips children */
+  }
+  .board-column:hover {
+    transform: translateY(-4px);
+  }
+  
+  /* Column Header */
+  .board-column .column-header {
     display: flex;
     align-items: center;
-    border-bottom: 2px solid var(--border-color);
-    color: var(--text-color);
-}
-
-.board-column .title h3 {
+    padding: var(--spacing);
+    border-bottom: 1px solid var(--border-color);
+  }
+  .board-column .column-header h3 {
+    flex-grow: 1;
+    margin: 0;
     font-size: 1.15rem;
     text-transform: uppercase;
-}
-
-.board-column .title h3::after {
-    content: attr(data-tasks);
+  }
+  .board-column .column-header button {
     background: var(--accent-primary);
-    margin-left: 0.5rem;
-    border-radius: 0.25rem;
-    padding: 0 0.25rem;
-}
-
-.board-column .title button {
-    margin-left: auto;
-    font-size: 2rem;
-}
-
-.board-column .tasks {
-    min-height: var(--task-size);
+    color: #fff;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 20%;
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+  .board-column .column-header button:hover {
+    background: var(--accent-primary-hover);
+  }
+  
+  /* Task Container */
+  .board-column .task-container {
     display: grid;
-    align-content: start;
-    gap: 0.5rem;
-}
-
-.board-column .tasks > * {
-    background: var(--text-box-color);
-    max-width: 300px;
-    border-radius: 0.25rem;
-    text-wrap: wrap;
-    overflow-wrap: anywhere;
-    padding: 0.875rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    gap: var(--spacing);
+    padding: var(--spacing);
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  /* Task Card */
+  .task {
+    background-color: var(--task-bg);
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    box-shadow: 0 1px 4px var(--shadow-light);
     position: relative;
-    min-height: var(--task-size);
-}
-
-/*.board-column .task {*/
-/*    cursor: move;*/
-/*    transition: 0.3s;*/
-/*}*/
-
-/*.board-column .task.dragging {*/
-/*    cursor: default;*/
-/*    box-shadow: none;*/
-/*    background: var(--accent-primary-hover);*/
-/*    opacity: 0.5;*/
-/*}*/
-
-/*.board-column .task.dragging * {*/
-/*    visibility: hidden;*/
-/*}*/
-
-/*.board-column .task:not(.dragging):hover {*/
-/*    background: var(--accent-primary-hover);*/
-/*}*/
-
-/*.board-column .task menu {*/
-/*    margin-top: 0.875rem;*/
-/*    display: flex;*/
-/*    justify-content: flex-end;*/
-/*    gap: 0.5rem;*/
-/*}*/
-
-/*.board-column .task button {*/
-/*    width: 1.5rem;*/
-/*    height: 1.5rem;*/
-/*    font-size: 1.25rem;*/
-/*}*/
-
-/*.board-column .task-input {*/
-/*    outline-color: var(--accent-primary);*/
-/*    outline-width: 0.15rem;*/
-/*    overflow-wrap: anywhere;*/
-/*}*/
-
-/*.board-column .task-input:empty::after {*/
-/*    content: attr(data-placeholder);*/
-/*    opacity: 0.5;*/
-/*}*/
-
-.task {
-    position: relative;
-    padding: 10px;
-    border: 0;
-    border-radius: 8px;
-    transition: background-color 0.2s ease;
-}
-
-.task-menu {
+    transition: box-shadow var(--transition), transform var(--transition);
+  
+    /* New: full column width, wrap text, clip overflow so rounding shows */
+    width: 100%;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    overflow: hidden;
+  }
+  .task:hover {
+    box-shadow: 0 4px 12px var(--shadow-light);
+    transform: translateY(-2px);
+  }
+  
+  /* Task Menu */
+  .task-menu {
     display: none;
     position: absolute;
-    top: 8px;
-    right: 8px;
-}
-
-.task:hover .task-menu {
+    top: 0.5rem;
+    right: 0.5rem;
+    gap: 0.25rem;
+  }
+  .task:hover .task-menu {
     display: flex;
-    gap: 4px;
-}
-
-.task:hover {
-    border: 1px solid #ccc;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-}
+  }
+  .task-menu button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--accent-primary);
+    transition: color var(--transition);
+  }
+  .task-menu button:hover {
+    color: var(--accent-primary-hover);
+  }
+  
+  /* ==== COLUMN CREATION ==== */
+  .board-column-creation {
+    background-color: var(--column-bg);
+    border: 2px dashed var(--accent-primary);
+    border-radius: var(--radius);
+    padding: var(--spacing);
+    min-width: 20rem;
+    max-width: 20rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color var(--transition), background-color var(--transition);
+  }
+  .board-column-creation:hover {
+    border-color: var(--accent-primary-hover);
+  }
+  .board-column-creation input {
+    width: 100%;
+    padding: 0.5rem var(--spacing);
+    border: none;
+    border-radius: var(--radius);
+    background-color: #3a3a3a;
+    color: var(--text-color);
+  }
+  .board-column-creation input::placeholder {
+    color: rgba(224, 224, 224, 0.6);
+  }
+  .board-column-creation input:focus {
+    outline: none;
+    border: 2px solid var(--accent-primary);
+    background-color: #2e2e2e;
+  }
+  
+  /* Create Column Button */
+  #column-create-button,
+  .board .create-col {
+    background-color: var(--accent-primary);
+    color: #fff;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background var(--transition);
+    min-width: 20rem;
+    max-width: 20rem;
+    text-align: center;
+  }
+  #column-create-button:hover,
+  .board .create-col:hover {
+    background-color: var(--accent-primary-hover);
+  }
+  
+  /* ==== RESPONSIVE ==== */
+  @media (max-width: 768px) {
+    .board-column,
+    .board-column-creation,
+    #column-create-button,
+    .board .create-col {
+      min-width: 16rem;
+      max-width: 16rem;
+    }
+  }
