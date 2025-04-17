@@ -30,7 +30,7 @@ router.post('/board/get-all-cols', async (req, res) => {
 });
 
 router.post('/board/create-col', async (req, res) => {
-    res.send(boardManager.createColumn(req.session.board, req.body.columnName));
+    res.json(boardManager.createColumn(req.session.board, req.body.columnName));
 })
 
 router.post('/board/delete-col', async (req, res) => {

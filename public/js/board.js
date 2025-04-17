@@ -1,5 +1,8 @@
 const columnCreateButton = document.getElementById("column-create-button");
 const columnCreationContainer = document.getElementById("column-creation-container");
+const columnContainer = document.getElementById("column-container");
+
+// FETCHING TO BACKEND ==========================
 
 const createColumn = (columnName) => {
     fetch('/board/create-col', {
@@ -41,6 +44,7 @@ const loadAllColumns = async () => {
         });
 }
 
+// HANDLE COLUMN CREATION ==========================
 columnCreateButton.addEventListener('click', (event) => {
     const preButtonStyle = columnCreateButton.style.display;
     columnCreateButton.style.display = 'none';
@@ -55,7 +59,9 @@ columnCreateButton.addEventListener('click', (event) => {
     const insertedElement = columnCreationContainer.querySelector('.board-column-creation')
     input.addEventListener('blur', () => {
         if (insertedElement) {
-            createColumn(input.value.trim());
+            if (input.value !== '') {
+                createColumn(input.value.trim());
+            }
 
             insertedElement.remove();
             columnCreateButton.style.display = preButtonStyle;
@@ -68,6 +74,7 @@ columnCreateButton.addEventListener('click', (event) => {
     });
 })
 
+// HANDLE TASK CREATION==========================
 const handleAddTask = (column) => {
     const template = document.getElementById('task-creation-template');
     const node = template.content.cloneNode(true);
@@ -78,7 +85,9 @@ const handleAddTask = (column) => {
 
     const insertedElement = column.querySelector('.task-creation')
     input.addEventListener('blur', () => {
-        displayNewTask(column, input.value.trim());
+        if (input.value.trim() !== '') {
+            displayNewTask(column, input.value.trim());
+        }
 
         insertedElement.remove();
     });
@@ -89,6 +98,58 @@ const handleAddTask = (column) => {
     });
 }
 
+// HANDLE TASK DRAG AND DROP ==========================
+const makeTaskDraggableAndDroppable = (task) => {
+    task.setAttribute("draggable", "true");
+    task.addEventListener("dragstart", handleTaskDragStart);
+    task.addEventListener("dragend", handleTaskDragEnd);
+    task.addEventListener("dragover", handleTaskDragover);
+    task.addEventListener("drop", handleTaskDrop);
+    return task;
+}
+const handleTaskDragStart = (event) => {
+    event.dataTransfer.effectsAllowed = "move";
+    event.dataTransfer.setData("text/plain", "");
+    requestAnimationFrame(() => event.target.classList.add("dragging"));
+}
+const handleTaskDragEnd = (event) => {
+    event.target.classList.remove("dragging");
+}
+const handleTaskDragover = (event) => {
+    event.preventDefault(); // allow drop
+
+    const draggedTask = document.querySelector(".dragging");
+    const target = event.target.closest(".task, .task-container");
+
+    if (!target || target === draggedTask) return;
+
+    if (target.classList.contains("tasks")) {
+        // target is the tasks element
+        const lastTask = target.lastElementChild;
+        if (!lastTask) {
+            // tasks is empty
+            target.appendChild(draggedTask);
+        } else {
+            const { bottom } = lastTask.getBoundingClientRect();
+            event.clientY > bottom && target.appendChild(draggedTask);
+        }
+    } else {
+        // target is another
+        const { top, height } = target.getBoundingClientRect();
+        const distance = top + height / 2;
+
+        if (event.clientY < distance) {
+            target.before(draggedTask);
+        } else {
+            target.after(draggedTask);
+        }
+    }
+}
+const handleTaskDrop = (event) => {
+    event.preventDefault();
+}
+
+// HANDLE ELEMENT CLICKING ON ==========================
 document.addEventListener('click', function (event) {
     if (event.target.closest('#task-add-button')) {
         const button = event.target.closest('#task-add-button');
@@ -97,10 +158,12 @@ document.addEventListener('click', function (event) {
     }
 });
 
+// EVENT START LOADING ==========================
 document.addEventListener('DOMContentLoaded', () => {
     loadAllColumns().then();
 });
 
+// DISPLAYING DATA TO FRONTEND ==========================
 const displayNewColumn = (columnName) => {
     const template = document.getElementById('board-column-template');
 
@@ -117,10 +180,13 @@ const displayNewTask = (column, taskName) => {
     const template = document.getElementById('task-template');
 
     const taskNode = template.content.cloneNode(true);
+    const task = taskNode.querySelector('.task');
     const titleDiv = taskNode.getElementById('title');
 
     titleDiv.textContent = taskName;
 
     const container = column.querySelector('.task-container');
-    container.appendChild(taskNode);
+    container.appendChild(task);
+
+    makeTaskDraggableAndDroppable(task);
 }

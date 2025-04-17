@@ -129,8 +129,6 @@ const getAllColumn = async (boardName) => {
     }
 }
 
-
-
 module.exports = {
     createBoard,
     deleteBoard,
