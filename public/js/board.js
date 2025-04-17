@@ -1,5 +1,5 @@
 const columnCreateButton = document.getElementById("column-create-button");
-const columnCreateContainer = document.getElementById("column-create-container");
+const columnCreationContainer = document.getElementById("column-creation-container");
 
 const createColumn = (columnName) => {
     fetch('/board/create-col', {
@@ -41,31 +41,61 @@ const loadAllColumns = async () => {
         });
 }
 
-const handleCreateColumnButton = () => {
+columnCreateButton.addEventListener('click', (event) => {
     const preButtonStyle = columnCreateButton.style.display;
     columnCreateButton.style.display = 'none';
 
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.placeholder = 'Enter board name';
-    input.id = 'boardInput';
+    const template = document.getElementById('board-column-creation-template');
+    const node = template.content.cloneNode(true);
+    const input = node.getElementById('board-column-creation-input');
 
-    columnCreateContainer.appendChild(input);
+    columnCreationContainer.appendChild(node);
     input.focus();
 
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
+    const insertedElement = columnCreationContainer.querySelector('.board-column-creation')
+    input.addEventListener('blur', () => {
+        if (insertedElement) {
             createColumn(input.value.trim());
 
-            input.remove();
+            insertedElement.remove();
             columnCreateButton.style.display = preButtonStyle;
+        }
+    });
+    input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            input.blur();
+        }
+    });
+})
+
+const handleAddTask = (column) => {
+    const template = document.getElementById('task-creation-template');
+    const node = template.content.cloneNode(true);
+    const input = node.getElementById('task-creation-input');
+
+    column.appendChild(node);
+    input.focus();
+
+    const insertedElement = column.querySelector('.task-creation')
+    input.addEventListener('blur', () => {
+        displayNewTask(column, input.value.trim());
+
+        insertedElement.remove();
+    });
+    input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            input.blur();
         }
     });
 }
 
-columnCreateButton.addEventListener('click', () => {
-    handleCreateColumnButton();
-})
+document.addEventListener('click', function (event) {
+    if (event.target.closest('#task-add-button')) {
+        const button = event.target.closest('#task-add-button');
+        const column = button.closest('.board-column');
+        handleAddTask(column);
+    }
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     loadAllColumns().then();
@@ -73,15 +103,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const displayNewColumn = (columnName) => {
     const template = document.getElementById('board-column-template');
-    const container = document.getElementById('column-container');
-    const columnCreateContainer = document.getElementById('column-create-container');
 
     const columnNode = template.content.cloneNode(true);
-
     const titleDiv = columnNode.getElementById('title');
-    if (titleDiv) {
-        titleDiv.textContent = columnName;
-    }
 
-    container.insertBefore(columnNode, columnCreateContainer);
+    titleDiv.textContent = columnName;
+
+    const container = document.getElementById('column-container');
+    container.insertBefore(columnNode, columnCreationContainer);
 };
+
+const displayNewTask = (column, taskName) => {
+    const template = document.getElementById('task-template');
+
+    const taskNode = template.content.cloneNode(true);
+    const titleDiv = taskNode.getElementById('title');
+
+    titleDiv.textContent = taskName;
+
+    const container = column.querySelector('.task-container');
+    container.appendChild(taskNode);
+}

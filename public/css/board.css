@@ -127,46 +127,71 @@
     min-height: var(--task-size);
 }
 
-.board-column .task {
-    cursor: move;
-    transition: 0.3s;
+/*.board-column .task {*/
+/*    cursor: move;*/
+/*    transition: 0.3s;*/
+/*}*/
+
+/*.board-column .task.dragging {*/
+/*    cursor: default;*/
+/*    box-shadow: none;*/
+/*    background: var(--accent-primary-hover);*/
+/*    opacity: 0.5;*/
+/*}*/
+
+/*.board-column .task.dragging * {*/
+/*    visibility: hidden;*/
+/*}*/
+
+/*.board-column .task:not(.dragging):hover {*/
+/*    background: var(--accent-primary-hover);*/
+/*}*/
+
+/*.board-column .task menu {*/
+/*    margin-top: 0.875rem;*/
+/*    display: flex;*/
+/*    justify-content: flex-end;*/
+/*    gap: 0.5rem;*/
+/*}*/
+
+/*.board-column .task button {*/
+/*    width: 1.5rem;*/
+/*    height: 1.5rem;*/
+/*    font-size: 1.25rem;*/
+/*}*/
+
+/*.board-column .task-input {*/
+/*    outline-color: var(--accent-primary);*/
+/*    outline-width: 0.15rem;*/
+/*    overflow-wrap: anywhere;*/
+/*}*/
+
+/*.board-column .task-input:empty::after {*/
+/*    content: attr(data-placeholder);*/
+/*    opacity: 0.5;*/
+/*}*/
+
+.task {
+    position: relative;
+    padding: 10px;
+    border: 0;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
 }
 
-.board-column .task.dragging {
-    cursor: default;
-    box-shadow: none;
-    background: var(--accent-primary-hover);
-    opacity: 0.5;
+.task-menu {
+    display: none;
+    position: absolute;
+    top: 8px;
+    right: 8px;
 }
 
-.board-column .task.dragging * {
-    visibility: hidden;
-}
-
-.board-column .task:not(.dragging):hover {
-    background: var(--accent-primary-hover);
-}
-
-.board-column .task menu {
-    margin-top: 0.875rem;
+.task:hover .task-menu {
     display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
+    gap: 4px;
 }
 
-.board-column .task button {
-    width: 1.5rem;
-    height: 1.5rem;
-    font-size: 1.25rem;
-}
-
-.board-column .task-input {
-    outline-color: var(--accent-primary);
-    outline-width: 0.15rem;
-    overflow-wrap: anywhere;
-}
-
-.board-column .task-input:empty::after {
-    content: attr(data-placeholder);
-    opacity: 0.5;
+.task:hover {
+    border: 1px solid #ccc;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }

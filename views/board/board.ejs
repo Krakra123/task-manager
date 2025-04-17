@@ -8,7 +8,7 @@
     <div class="main-container">
         <div id="column-container" class="column-container">
 
-            <div id="column-create-container">
+            <div id="column-creation-container">
                 <button id="column-create-button" class="btn">Create Board</button>
             </div>
         </div>
@@ -20,9 +20,29 @@
     <div class="board-column">
         <div class="column-header">
             <h3 id="title"></h3>
-            <button data-add><i class="bi bi-plus"></i></button>
+            <button id="task-add-button"><i class="bi bi-plus"></i></button>
         </div>
-        <div class="tasks"></div>
+        <div class="task-container"></div>
+    </div>
+</template>
+<template id="board-column-creation-template">
+    <div class="board-column-creation">
+        <input type="text" id="board-column-creation-input" placeholder="Column name..." />
+    </div>
+</template>
+
+<template id="task-template">
+    <div class="task">
+        <div id="title" class="task-title">Task title</div>
+        <menu class="task-menu">
+            <button class="task-edit-button"><i class="bi bi-pencil-square"></i></button>
+            <button class="task-delete-button"><i class="bi bi-trash"></i></button>
+        </menu>
+    </div>
+</template>
+<template id="task-creation-template">
+    <div class="task-creation">
+        <input type="text" id="task-creation-input" placeholder="Task title..." />
     </div>
 </template>
 
