@@ -1,10 +1,9 @@
 const columnCollection = require("../models/board-model").boardColumnCollection;
 const taskCollection = require("../models/board-model").taskCollection;
 
-const createTask = async (columnID, taskName) => {
+const createTask = async (columnID, taskName, beforeIndex = -1) => {
     try {
-        const column = await columnCollection.findOne({ _id: columnID });
-
+        const column = await columnCollection.findOne({_id: columnID});
         if (!column) {
             console.error("Error creating task: Column not found.");
         }
@@ -15,7 +14,12 @@ const createTask = async (columnID, taskName) => {
         });
         await newTask.save();
 
-        column.tasks.push(newTask._id);
+        if (beforeIndex === -1) {
+            column.tasks.push(newTask);
+        } else {
+            column.tasks.splice(beforeIndex, 0, newTask);
+        }
+
         column.updatedAt = new Date();
         await column.save();
 
@@ -83,6 +87,86 @@ const getAllTask = async (columnID) => {
     }
 }
 
+const moveTask = async (taskID, columnID, index = -1) => {
+    try {
+        // Fetch the destination column, task, and origin column
+        const column = await columnCollection.findOne({ _id: columnID });
+        if (!column) {
+            console.error(`Error moving task: Column with ID ${columnID} not found.`);
+            return;
+        }
+
+        const task = await taskCollection.findOne({ _id: taskID });
+        if (!task) {
+            console.error(`Error moving task: Task with ID ${taskID} not found.`);
+            return;
+        }
+
+        const originColumn = await columnCollection.findOne({ _id: task.column });
+        if (!originColumn) {
+            console.error(`Error moving task: Origin column with ID ${task.column} not found.`);
+            return;
+        }
+
+        // Step 1: Remove the task from the origin column
+        await columnCollection.updateOne(
+            { _id: task.column },
+            { $pull: { tasks: taskID } }
+        );
+
+        // Step 2: Update the task column reference
+        await taskCollection.updateOne(
+            { _id: taskID },
+            { $set: { column: column._id } }
+        );
+
+        // Step 3: Insert the task into the new column at the desired index
+        if (index === -1) {
+            // Insert at the end of the tasks array
+            await columnCollection.updateOne(
+                { _id: columnID },
+                { $push: { tasks: taskID } }
+            );
+        } else {
+            // Insert at the specific index in the tasks array
+            await columnCollection.updateOne(
+                { _id: columnID },
+                {
+                    $push: {
+                        tasks: {
+                            $each: [taskID],
+                            $position: index
+                        }
+                    }
+                }
+            );
+        }
+
+        // Step 4: Update the updatedAt timestamps
+        await columnCollection.updateOne(
+            { _id: columnID },
+            { $set: { updatedAt: new Date() } }
+        );
+
+        await columnCollection.updateOne(
+            { _id: originColumn._id },
+            { $set: { updatedAt: new Date() } }
+        );
+
+        await taskCollection.updateOne(
+            { _id: taskID },
+            { $set: { updatedAt: new Date() } }
+        );
+
+        console.log(`Successfully moved task ${taskID} from column ${originColumn._id} to column ${columnID} at index ${index}`);
+
+        return task;
+    } catch (err) {
+        console.error("Error moving task:", err);
+    }
+};
+
+
 const updateTask = async (taskID, updates) => {
     try {
         // Find the task by ID
@@ -116,5 +200,6 @@ module.exports = {
     getTaskIDByIndex,
     getAllTaskID,
     getAllTask,
+    moveTask,
     updateTask,
 };

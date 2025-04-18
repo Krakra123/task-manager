@@ -88,6 +88,26 @@ const loadAllTaskInColumn = async (columnID) => {
         })
 }
 
+const moveTask = async (taskID, columnID, index) => {
+    fetch('/task/move-task', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({taskID, columnID, index})
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Request failed');
+            return response.json();
+        })
+        .then(data => {
+
+        })
+        .catch(err => {
+            console.error("Error move task:", err);
+        })
+}
+
 // HANDLE COLUMN CREATION ==========================
 columnCreateButton.addEventListener('click', (event) => {
     const preButtonStyle = columnCreateButton.style.display;
@@ -144,21 +164,30 @@ const handleAddTask = (column) => {
 }
 
 // HANDLE TASK DRAG AND DROP ==========================
-const makeTaskDraggableAndDroppable = (task) => {
+const makeColumnDroppable = (column) => {
+    const container = column.querySelector(".task-container");
+    container.addEventListener("dragover", handleTaskDragover);
+    container.addEventListener("drop", handleTaskDrop);
+}
+const makeTaskDraggable = (task) => {
     task.setAttribute("draggable", "true");
     task.addEventListener("dragstart", handleTaskDragStart);
     task.addEventListener("dragend", handleTaskDragEnd);
-    task.addEventListener("dragover", handleTaskDragover);
-    task.addEventListener("drop", handleTaskDrop);
+    // task.addEventListener("dragover", handleTaskDragover);
+    // task.addEventListener("drop", handleTaskDrop);
     return task;
 }
 const handleTaskDragStart = (event) => {
     event.dataTransfer.effectsAllowed = "move";
     event.dataTransfer.setData("text/plain", "");
-    requestAnimationFrame(() => event.target.classList.add("dragging"));
+    requestAnimationFrame(() => {
+        event.target.className = "task-dragging";
+        event.target.classList.add("dragging");
+    });
 }
 const handleTaskDragEnd = (event) => {
-    event.target.classList.remove("dragging");
+    event.target.className = "task";
+    // event.target.classList.remove("dragging");
 }
 const handleTaskDragover = (event) => {
     event.preventDefault(); // allow drop
@@ -168,18 +197,15 @@ const handleTaskDragover = (event) => {
 
     if (!target || target === draggedTask) return;
 
-    if (target.classList.contains("tasks")) {
-        // target is the tasks element
+    if (target.classList.contains("task-container")) {
         const lastTask = target.lastElementChild;
         if (!lastTask) {
-            // tasks is empty
             target.appendChild(draggedTask);
         } else {
             const {bottom} = lastTask.getBoundingClientRect();
             event.clientY > bottom && target.appendChild(draggedTask);
         }
     } else {
-        // target is another
         const {top, height} = target.getBoundingClientRect();
         const distance = top + height / 2;
 
@@ -189,9 +215,20 @@ const handleTaskDragover = (event) => {
             target.after(draggedTask);
         }
     }
-}
-const handleTaskDrop = (event) => {
+};
+const handleTaskDrop = async (event) => {
     event.preventDefault();
+
+    const draggedTask = document.querySelector(".dragging");
+    const target = event.target.closest(".task, .task-container");
+
+    if (!target || target === draggedTask) return;
+
+    const container = draggedTask.parentElement;
+    console.log(container, Array.from(container.children).indexOf(draggedTask));
+    await moveTask(draggedTask.getAttribute('data-id'),
+        container.getAttribute('data-id'),
+        Array.from(container.children).indexOf(draggedTask));
 }
 
 // HANDLE ELEMENT CLICKING ON ==========================
@@ -222,6 +259,9 @@ const displayNewColumn = (columnName, columnID) => {
     container.insertBefore(columnNode, columnCreationContainer);
 
     column.setAttribute('data-id', columnID);
+    column.querySelector('.task-container').setAttribute('data-id', columnID);
+
+    makeColumnDroppable(column);
 };
 
 const displayNewTask = (columnID, taskName, taskID) => {
@@ -239,5 +279,5 @@ const displayNewTask = (columnID, taskName, taskID) => {
 
     task.setAttribute('data-id', taskID);
 
-    makeTaskDraggableAndDroppable(task);
+    makeTaskDraggable(task);
 }

@@ -20,6 +20,28 @@ router.post('/task/create-task', async (req, res) => {
     }
 })
 
+router.post('/task/delete-task', async (req, res) => {
+    try {
+        const taskID = req.body.taskID;
+
+        res.json(await taskManager.deleteTask(taskID));
+    } catch (err) {
+        console.error('Error deleting task:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+})
+
+router.post('/task/move-task', async (req, res) => {
+    try {
+        const { taskID, columnID, index } = req.body;
+
+        res.json(await taskManager.moveTask(taskID, columnID, index));
+    } catch (err) {
+        console.error('Error moving task:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+})
+
 router.post('/task/get-all-task-in-column', async (req, res) => {
     try {
         const columnID = req.body.columnID;
