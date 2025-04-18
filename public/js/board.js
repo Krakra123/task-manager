@@ -3,7 +3,6 @@ const columnCreationContainer = document.getElementById("column-creation-contain
 const columnContainer = document.getElementById("column-container");
 
 // FETCHING TO BACKEND ==========================
-
 const createColumn = (columnName) => {
     fetch('/board/create-col', {
         method: 'POST',
@@ -14,13 +13,15 @@ const createColumn = (columnName) => {
     })
         .then(response => {
             if (!response.ok) throw new Error('Request failed');
-            return response.text();
+            return response.json();
+        })
+        .then(data => {
+            const columnID = data._id;
+            displayNewColumn(columnName, columnID);
         })
         .catch(err => {
             alert('Error: ' + err.message);
         });
-
-    displayNewColumn(columnName);
 }
 
 const loadAllColumns = async () => {
@@ -35,13 +36,56 @@ const loadAllColumns = async () => {
             return response.json();
         })
         .then(data => {
-            data.columns.forEach(column => {
-                displayNewColumn(column.title);
+            data.forEach(column => {
+                displayNewColumn(column.title, column._id);
+                loadAllTaskInColumn(column._id);
             });
         })
         .catch(err => {
             console.error("Error loading columns:", err);
         });
+}
+
+const createTaskInColumn = (columnID, taskName) => {
+    fetch('/task/create-task', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({columnID, taskName})
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Request failed');
+            return response.json();
+        })
+        .then(data => {
+            displayNewTask(columnID, data.title, data._id);
+        })
+        .catch(err => {
+            console.error("Error creating task:", err);
+        })
+}
+
+const loadAllTaskInColumn = async (columnID) => {
+    fetch('/task/get-all-task-in-column', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({columnID})
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Request failed');
+            return response.json();
+        })
+        .then(data => {
+            data.forEach(task => {
+                displayNewTask(columnID, task.title, task._id);
+            })
+        })
+        .catch(err => {
+            console.error("Error loading task in column:", err);
+        })
 }
 
 // HANDLE COLUMN CREATION ==========================
@@ -86,7 +130,8 @@ const handleAddTask = (column) => {
     const insertedElement = column.querySelector('.task-creation')
     input.addEventListener('blur', () => {
         if (input.value.trim() !== '') {
-            displayNewTask(column, input.value.trim());
+            const columnID = column.getAttribute('data-id');
+            createTaskInColumn(columnID, input.value.trim());
         }
 
         insertedElement.remove();
@@ -130,12 +175,12 @@ const handleTaskDragover = (event) => {
             // tasks is empty
             target.appendChild(draggedTask);
         } else {
-            const { bottom } = lastTask.getBoundingClientRect();
+            const {bottom} = lastTask.getBoundingClientRect();
             event.clientY > bottom && target.appendChild(draggedTask);
         }
     } else {
         // target is another
-        const { top, height } = target.getBoundingClientRect();
+        const {top, height} = target.getBoundingClientRect();
         const distance = top + height / 2;
 
         if (event.clientY < distance) {
@@ -164,19 +209,22 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // DISPLAYING DATA TO FRONTEND ==========================
-const displayNewColumn = (columnName) => {
+const displayNewColumn = (columnName, columnID) => {
     const template = document.getElementById('board-column-template');
 
     const columnNode = template.content.cloneNode(true);
+    const column = columnNode.querySelector('.board-column');
     const titleDiv = columnNode.getElementById('title');
 
     titleDiv.textContent = columnName;
 
     const container = document.getElementById('column-container');
     container.insertBefore(columnNode, columnCreationContainer);
+
+    column.setAttribute('data-id', columnID);
 };
 
-const displayNewTask = (column, taskName) => {
+const displayNewTask = (columnID, taskName, taskID) => {
     const template = document.getElementById('task-template');
 
     const taskNode = template.content.cloneNode(true);
@@ -185,8 +233,11 @@ const displayNewTask = (column, taskName) => {
 
     titleDiv.textContent = taskName;
 
+    const column = document.querySelector(`[data-id="${columnID}"]`);
     const container = column.querySelector('.task-container');
     container.appendChild(task);
+
+    task.setAttribute('data-id', taskID);
 
     makeTaskDraggableAndDroppable(task);
 }

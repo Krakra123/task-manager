@@ -3,7 +3,8 @@ const taskCollection = require("../models/board-model").taskCollection;
 
 const createTask = async (columnID, taskName) => {
     try {
-        const column = await columnCollection.findOne({_id: columnID});
+        const column = await columnCollection.findOne({ _id: columnID });
+
         if (!column) {
             console.error("Error creating task: Column not found.");
         }
@@ -16,7 +17,7 @@ const createTask = async (columnID, taskName) => {
 
         column.tasks.push(newTask._id);
         column.updatedAt = new Date();
-        await board.save();
+        await column.save();
 
         console.log(`Created task "${taskName}" added to column "${columnID}".`);
         return newTask;
@@ -76,7 +77,7 @@ const getAllTask = async (columnID) => {
         if (!tasks) {
             console.error("Error getting all task: Column not found.");
         }
-        return tasks;
+        return tasks.tasks;
     } catch (err) {
         console.error("Error getting all task: ", err.message);
     }
@@ -85,7 +86,7 @@ const getAllTask = async (columnID) => {
 const updateTask = async (taskID, updates) => {
     try {
         // Find the task by ID
-        const task = await taskCollection.findOne({ _id: taskID });
+        const task = await taskCollection.findOne({_id: taskID});
         if (!task) {
             console.error("Error updating task: Task not found.");
             return null;
