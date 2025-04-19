@@ -60,17 +60,30 @@ router.post('/task/get-all-task-in-column', async (req, res) => {
 
 router.post('/task/edit-task', async (req, res) => {
     try {
-        const taskID = req.body.taskID;
+        const { taskId, title, description } = req.body;
 
-        const task = await taskManager.getTaskById(taskID);
-        if (!task) {
-            return res.status(404).json({ error: 'Task not found' });
+        if (!taskId || !title) {
+            return res.status(400).send('Missing required fields');
         }
-        
-        res.json(task);
-    } catch (error) {
-        console.error('Error fetching task:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+
+        const updatedTask = await taskManager.taskCollection.findByIdAndUpdate(
+            taskId,
+            {
+                title: title.trim(),
+                description: description?.trim(),
+                updatedAt: Date.now()
+            },
+            { new: true } // return the updated doc
+        );
+
+        if (!updatedTask) {
+            return res.status(404).send('Task not found');
+        }
+
+        res.redirect('/board'); // or send JSON: res.json(updatedTask);
+    } catch (err) {
+        console.error('Error updating task:', err);
+        res.status(500).send('Internal Server Error');
     }
 });
 
@@ -88,18 +101,18 @@ router.post('/task/save-task', async (req, res) => {
     }
 });
 
-router.get('/task-test', async (req, res) => {
-    // await taskManager.createTask("67ffe98e2eea0d4a983c623c", "test task");
-    await fetch('http://localhost:3000/task/edit-task', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            taskID: req.query.taskID,
-        })
-    });
-    res.send('ok');
+router.post('/task/get-task', async (req, res) => {
+    try {
+        const taskID = req.body.taskID;
+        const task = await taskManager.getTaskById(taskID);
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        res.json(task);
+    } catch (error) {
+        console.error('Error get task:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 });
 
 module.exports = router;

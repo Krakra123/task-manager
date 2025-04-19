@@ -238,7 +238,6 @@ const handleTaskDrop = async (event) => {
     if (!target || target === draggedTask) return;
 
     const container = draggedTask.parentElement;
-    console.log(container, Array.from(container.children).indexOf(draggedTask));
     await moveTask(draggedTask.getAttribute('data-id'),
         container.getAttribute('data-id'),
         Array.from(container.children).indexOf(draggedTask));
@@ -256,6 +255,11 @@ document.addEventListener('click', function (event) {
         const button = event.target.closest('.task-delete-button');
         const task = button.closest('.task');
         handleDeleteTask(task);
+    }
+
+    const clickedTask = event.target.closest('.task');
+    if (clickedTask) {
+        loadEditTaskForm(clickedTask.getAttribute('data-id')).then((task) => {});
     }
 });
 
@@ -299,4 +303,42 @@ const displayNewTask = (columnID, taskName, taskID) => {
     task.setAttribute('data-id', taskID);
 
     makeTaskDraggable(task);
+}
+
+const loadEditTaskForm = async (taskID) => {
+    fetch('/task/get-task', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({taskID})
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Request failed');
+            return response.json();
+        })
+        .then(data => {
+            const {title, description} = data;
+
+            const template = document.getElementById('task-edit-form-template');
+            const clone = template.content.cloneNode(true);
+
+            const overlay = clone.querySelector('.task-edit-form-overlay');
+            const form = clone.querySelector('.task-edit-form');
+
+            form.querySelector('.taskID').value = taskID;
+            form.querySelector('.title').value = title;
+            form.querySelector('.task-desc').value = description;
+
+            document.body.appendChild(overlay);
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.remove();
+            });
+        })
+        .catch(err => {
+            alert('Error: ' + err.message);
+        });
+
+
 }

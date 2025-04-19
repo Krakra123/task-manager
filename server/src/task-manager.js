@@ -10,6 +10,7 @@ const createTask = async (columnID, taskName, beforeIndex = -1) => {
 
         const newTask = new taskCollection({
             title: taskName,
+            description: "",
             column: columnID
         });
         await newTask.save();
@@ -202,4 +203,6 @@ module.exports = {
     getAllTask,
     moveTask,
     updateTask,
+
+    taskCollection,
 };
