@@ -88,6 +88,40 @@ router.post('/task/save-task', async (req, res) => {
     }
 });
 
+router.post('/task/add-bind-user-to-task', async (req, res) => {
+    try {
+        const { userID, taskID } = req.body;
+
+        const result = await taskManager.addBindUserToTask(userID, taskID);
+
+        if (!result) {
+            return res.status(500).json({ error: 'Failed to bind user to task' });
+        }
+
+        res.status(200).json(result);
+    } catch (err) {
+        console.error('Error binding user to task:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.post('/task/remove-bind-user-to-task', async (req, res) => {
+    try {
+        const { userID, taskID } = req.body;
+
+        const result = await taskManager.removeBindUserFromTask(userID, taskID);
+
+        if (!result) {
+            return res.status(500).json({ error: 'Failed to remove user binding from task' });
+        }
+
+        res.status(200).json(result);
+    } catch (err) {
+        console.error('Error removing user binding from task:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 router.get('/task-test', async (req, res) => {
     // await taskManager.createTask("67ffe98e2eea0d4a983c623c", "test task");
     await fetch('http://localhost:3000/task/edit-task', {
