@@ -3,8 +3,8 @@ const columnCreationContainer = document.getElementById("column-creation-contain
 const columnContainer = document.getElementById("column-container");
 
 // FETCHING TO BACKEND ==========================
-const createColumn = (columnName) => {
-    fetch('/board/create-col', {
+const createColumn = async (columnName) => {
+    await fetch('/board/create-col', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -25,7 +25,7 @@ const createColumn = (columnName) => {
 }
 
 const loadAllColumns = async () => {
-    fetch('/board/get-all-cols', {
+    await fetch('/board/get-all-cols', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -46,8 +46,8 @@ const loadAllColumns = async () => {
         });
 }
 
-const createTaskInColumn = (columnID, taskName) => {
-    fetch('/task/create-task', {
+const createTaskInColumn = async (columnID, taskName) => {
+    await fetch('/task/create-task', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ const createTaskInColumn = (columnID, taskName) => {
 }
 
 const loadAllTaskInColumn = async (columnID) => {
-    fetch('/task/get-all-task-in-column', {
+    await fetch('/task/get-all-task-in-column', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ const loadAllTaskInColumn = async (columnID) => {
 }
 
 const moveTask = async (taskID, columnID, index) => {
-    fetch('/task/move-task', {
+    await fetch('/task/move-task', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -161,6 +161,19 @@ const handleAddTask = (column) => {
             input.blur();
         }
     });
+}
+
+// HANDLE TASK DELETION ==========================
+const handleDeleteTask = async (task) => {
+    const taskID = task.getAttribute('data-id');
+    await fetch('/task/delete-task', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({taskID})
+    })
+    task.remove();
 }
 
 // HANDLE TASK DRAG AND DROP ==========================
@@ -237,6 +250,12 @@ document.addEventListener('click', function (event) {
         const button = event.target.closest('#task-add-button');
         const column = button.closest('.board-column');
         handleAddTask(column);
+    }
+
+    if (event.target.closest('.task-delete-button')) {
+        const button = event.target.closest('.task-delete-button');
+        const task = button.closest('.task');
+        handleDeleteTask(task);
     }
 });
 
