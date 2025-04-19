@@ -101,6 +101,18 @@ router.post('/task/save-task', async (req, res) => {
     }
 });
 
+router.get('/task-test', async (req, res) => {
+    // await taskManager.createTask("67ffe98e2eea0d4a983c623c", "test task");
+    await fetch('http://localhost:3000/task/edit-task', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            taskID: req.query.taskID,
+        })
+    });
+    res.send('ok');
 router.post('/task/get-task', async (req, res) => {
     try {
         const taskID = req.body.taskID;

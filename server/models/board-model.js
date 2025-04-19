@@ -69,7 +69,12 @@ const taskSchema = new schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Column',
     },
-
+    users: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Users',
+        },
+    ],
     createdAt: {
         type: Date,
         default: Date.now
