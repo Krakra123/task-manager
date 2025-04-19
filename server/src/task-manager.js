@@ -1,5 +1,6 @@
 const columnCollection = require("../models/board-model").boardColumnCollection;
 const taskCollection = require("../models/board-model").taskCollection;
+const userCollection = require("../models/user-model");
 
 const createTask = async (columnID, taskName, beforeIndex = -1) => {
     try {
@@ -193,6 +194,75 @@ const updateTask = async (taskID, updates) => {
     }
 };
 
+const addBindUserToTask = async (userID, taskID) => {
+    try {
+        // Find the user and task
+        const user = await userCollection.findOne({ _id: userID });
+        const task = await taskCollection.findOne({ _id: taskID });
+
+        if (!user) {
+            console.error(`Error binding user to task: User with ID ${userID} not found.`);
+            return null;
+        }
+
+        if (!task) {
+            console.error(`Error binding user to task: Task with ID ${taskID} not found.`);
+            return null;
+        }
+
+        // Add the user to the task's users array if not already present
+        if (!task.users.includes(userID)) {
+            task.users.push(userID);
+            task.updatedAt = new Date();
+            await task.save();
+        }
+
+        // Add the task to the user's tasks array if not already present
+        if (!user.tasks.includes(taskID)) {
+            user.tasks.push(taskID);
+            await user.save();
+        }
+
+        console.log(`Successfully bound user ${userID} to task ${taskID}.`);
+        return { user, task };
+    } catch (err) {
+        console.error("Error binding user to task:", err.message);
+        throw err;
+    }
+};
+
+const removeBindUserFromTask = async (userID, taskID) => {
+    try {
+        const user = await userCollection.findOne({ _id: userID });
+        const task = await taskCollection.findOne({ _id: taskID });
+
+        if (!user) {
+            console.error(`Error removing user binding: User with ID ${userID} not found.`);
+            return null;
+        }
+
+        if (!task) {
+            console.error(`Error removing user binding: Task with ID ${taskID} not found.`);
+            return null;
+        }
+
+        // Remove the user from the task's users array
+        task.users = task.users.filter(id => id.toString() !== userID);
+        task.updatedAt = new Date();
+        await task.save();
+
+        // Remove the task from the user's tasks array
+        user.tasks = user.tasks.filter(id => id.toString() !== taskID);
+        await user.save();
+
+        console.log(`Successfully removed binding of user ${userID} from task ${taskID}.`);
+        return { user, task };
+    } catch (err) {
+        console.error("Error removing user binding from task:", err.message);
+        throw err;
+    }
+};
+
 module.exports = {
     createTask,
     deleteTask,
@@ -202,4 +272,6 @@ module.exports = {
     getAllTask,
     moveTask,
     updateTask,
+    addBindUserToTask,
+    removeBindUserFromTask,
 };
