@@ -3,9 +3,8 @@ const columnCreationContainer = document.getElementById("column-creation-contain
 const columnContainer = document.getElementById("column-container");
 
 // FETCHING TO BACKEND ==========================
-
-const createColumn = (columnName) => {
-    fetch('/board/create-col', {
+const createColumn = async (columnName) => {
+    await fetch('/board/create-col', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -14,17 +13,19 @@ const createColumn = (columnName) => {
     })
         .then(response => {
             if (!response.ok) throw new Error('Request failed');
-            return response.text();
+            return response.json();
+        })
+        .then(data => {
+            const columnID = data._id;
+            displayNewColumn(columnName, columnID);
         })
         .catch(err => {
             alert('Error: ' + err.message);
         });
-
-    displayNewColumn(columnName);
 }
 
 const loadAllColumns = async () => {
-    fetch('/board/get-all-cols', {
+    await fetch('/board/get-all-cols', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -35,13 +36,76 @@ const loadAllColumns = async () => {
             return response.json();
         })
         .then(data => {
-            data.columns.forEach(column => {
-                displayNewColumn(column.title);
+            data.forEach(column => {
+                displayNewColumn(column.title, column._id);
+                loadAllTaskInColumn(column._id);
             });
         })
         .catch(err => {
             console.error("Error loading columns:", err);
         });
+}
+
+const createTaskInColumn = async (columnID, taskName) => {
+    await fetch('/task/create-task', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({columnID, taskName})
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Request failed');
+            return response.json();
+        })
+        .then(data => {
+            displayNewTask(columnID, data.title, data._id);
+        })
+        .catch(err => {
+            console.error("Error creating task:", err);
+        })
+}
+
+const loadAllTaskInColumn = async (columnID) => {
+    await fetch('/task/get-all-task-in-column', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({columnID})
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Request failed');
+            return response.json();
+        })
+        .then(data => {
+            data.forEach(task => {
+                displayNewTask(columnID, task.title, task._id);
+            })
+        })
+        .catch(err => {
+            console.error("Error loading task in column:", err);
+        })
+}
+
+const moveTask = async (taskID, columnID, index) => {
+    await fetch('/task/move-task', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({taskID, columnID, index})
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Request failed');
+            return response.json();
+        })
+        .then(data => {
+
+        })
+        .catch(err => {
+            console.error("Error move task:", err);
+        })
 }
 
 // HANDLE COLUMN CREATION ==========================
@@ -86,7 +150,8 @@ const handleAddTask = (column) => {
     const insertedElement = column.querySelector('.task-creation')
     input.addEventListener('blur', () => {
         if (input.value.trim() !== '') {
-            displayNewTask(column, input.value.trim());
+            const columnID = column.getAttribute('data-id');
+            createTaskInColumn(columnID, input.value.trim());
         }
 
         insertedElement.remove();
@@ -98,22 +163,44 @@ const handleAddTask = (column) => {
     });
 }
 
+// HANDLE TASK DELETION ==========================
+const handleDeleteTask = async (task) => {
+    const taskID = task.getAttribute('data-id');
+    await fetch('/task/delete-task', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({taskID})
+    })
+    task.remove();
+}
+
 // HANDLE TASK DRAG AND DROP ==========================
-const makeTaskDraggableAndDroppable = (task) => {
+const makeColumnDroppable = (column) => {
+    const container = column.querySelector(".task-container");
+    container.addEventListener("dragover", handleTaskDragover);
+    container.addEventListener("drop", handleTaskDrop);
+}
+const makeTaskDraggable = (task) => {
     task.setAttribute("draggable", "true");
     task.addEventListener("dragstart", handleTaskDragStart);
     task.addEventListener("dragend", handleTaskDragEnd);
-    task.addEventListener("dragover", handleTaskDragover);
-    task.addEventListener("drop", handleTaskDrop);
+    // task.addEventListener("dragover", handleTaskDragover);
+    // task.addEventListener("drop", handleTaskDrop);
     return task;
 }
 const handleTaskDragStart = (event) => {
     event.dataTransfer.effectsAllowed = "move";
     event.dataTransfer.setData("text/plain", "");
-    requestAnimationFrame(() => event.target.classList.add("dragging"));
+    requestAnimationFrame(() => {
+        event.target.className = "task-dragging";
+        event.target.classList.add("dragging");
+    });
 }
 const handleTaskDragEnd = (event) => {
-    event.target.classList.remove("dragging");
+    event.target.className = "task";
+    // event.target.classList.remove("dragging");
 }
 const handleTaskDragover = (event) => {
     event.preventDefault(); // allow drop
@@ -123,19 +210,16 @@ const handleTaskDragover = (event) => {
 
     if (!target || target === draggedTask) return;
 
-    if (target.classList.contains("tasks")) {
-        // target is the tasks element
+    if (target.classList.contains("task-container")) {
         const lastTask = target.lastElementChild;
         if (!lastTask) {
-            // tasks is empty
             target.appendChild(draggedTask);
         } else {
-            const { bottom } = lastTask.getBoundingClientRect();
+            const {bottom} = lastTask.getBoundingClientRect();
             event.clientY > bottom && target.appendChild(draggedTask);
         }
     } else {
-        // target is another
-        const { top, height } = target.getBoundingClientRect();
+        const {top, height} = target.getBoundingClientRect();
         const distance = top + height / 2;
 
         if (event.clientY < distance) {
@@ -144,9 +228,19 @@ const handleTaskDragover = (event) => {
             target.after(draggedTask);
         }
     }
-}
-const handleTaskDrop = (event) => {
+};
+const handleTaskDrop = async (event) => {
     event.preventDefault();
+
+    const draggedTask = document.querySelector(".dragging");
+    const target = event.target.closest(".task, .task-container");
+
+    if (!target || target === draggedTask) return;
+
+    const container = draggedTask.parentElement;
+    await moveTask(draggedTask.getAttribute('data-id'),
+        container.getAttribute('data-id'),
+        Array.from(container.children).indexOf(draggedTask));
 }
 
 // HANDLE ELEMENT CLICKING ON ==========================
@@ -156,6 +250,17 @@ document.addEventListener('click', function (event) {
         const column = button.closest('.board-column');
         handleAddTask(column);
     }
+
+    if (event.target.closest('.task-delete-button')) {
+        const button = event.target.closest('.task-delete-button');
+        const task = button.closest('.task');
+        handleDeleteTask(task);
+    }
+
+    const clickedTask = event.target.closest('.task');
+    if (clickedTask) {
+        loadEditTaskForm(clickedTask.getAttribute('data-id')).then((task) => {});
+    }
 });
 
 // EVENT START LOADING ==========================
@@ -164,19 +269,25 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // DISPLAYING DATA TO FRONTEND ==========================
-const displayNewColumn = (columnName) => {
+const displayNewColumn = (columnName, columnID) => {
     const template = document.getElementById('board-column-template');
 
     const columnNode = template.content.cloneNode(true);
+    const column = columnNode.querySelector('.board-column');
     const titleDiv = columnNode.getElementById('title');
 
     titleDiv.textContent = columnName;
 
     const container = document.getElementById('column-container');
     container.insertBefore(columnNode, columnCreationContainer);
+
+    column.setAttribute('data-id', columnID);
+    column.querySelector('.task-container').setAttribute('data-id', columnID);
+
+    makeColumnDroppable(column);
 };
 
-const displayNewTask = (column, taskName) => {
+const displayNewTask = (columnID, taskName, taskID) => {
     const template = document.getElementById('task-template');
 
     const taskNode = template.content.cloneNode(true);
@@ -185,8 +296,49 @@ const displayNewTask = (column, taskName) => {
 
     titleDiv.textContent = taskName;
 
+    const column = document.querySelector(`[data-id="${columnID}"]`);
     const container = column.querySelector('.task-container');
     container.appendChild(task);
 
-    makeTaskDraggableAndDroppable(task);
+    task.setAttribute('data-id', taskID);
+
+    makeTaskDraggable(task);
+}
+
+const loadEditTaskForm = async (taskID) => {
+    fetch('/task/get-task', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({taskID})
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Request failed');
+            return response.json();
+        })
+        .then(data => {
+            const {title, description} = data;
+
+            const template = document.getElementById('task-edit-form-template');
+            const clone = template.content.cloneNode(true);
+
+            const overlay = clone.querySelector('.task-edit-form-overlay');
+            const form = clone.querySelector('.task-edit-form');
+
+            form.querySelector('.taskID').value = taskID;
+            form.querySelector('.title').value = title;
+            form.querySelector('.task-desc').value = description;
+
+            document.body.appendChild(overlay);
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.remove();
+            });
+        })
+        .catch(err => {
+            alert('Error: ' + err.message);
+        });
+
+
 }

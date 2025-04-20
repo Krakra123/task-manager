@@ -1,0 +1,14 @@
+<div class="task-edit-form-overlay">
+    <form class="task-edit-form" method="POST" action="/task/edit-task">
+        <input type="hidden" class="taskID" name="taskId" value="">
+
+        <input type="text" class="title" name="title" placeholder="Task name..." value="">
+
+        <p class="description">Description</p>
+        <textarea class="task-desc" name="description" placeholder="Enter task description..."></textarea>
+
+        <div class="button-row">
+            <button type="submit" class="edit-task-submit save-btn btn">Save</button>
+        </div>
+    </form>
+</div>

@@ -123,7 +123,7 @@ const getAllColumn = async (boardName) => {
         if (!columns) {
             console.error(`Error getting all column: Board ${boardName} not found.`);
         }
-        return columns;
+        return columns.columns;
     } catch (err) {
         console.error("Error getting all column: ", err.message);
     }
