@@ -24,6 +24,26 @@ const createColumn = async (columnName) => {
         });
 }
 
+const deleteColumn = async (columnID) => {
+    await fetch('/board/delete-col', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ columnID })
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Request failed');
+            return response.json();
+        })
+        .then(() => {
+            document.querySelector(`[data-id="${columnID}"]`).remove();
+        })
+        .catch(err => {
+            alert('Error: ' + err.message);
+        });
+};
+
 const loadAllColumns = async () => {
     await fetch('/board/get-all-cols', {
         method: 'POST',

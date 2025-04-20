@@ -30,11 +30,13 @@ router.post('/board/get-all-cols', async (req, res) => {
 });
 
 router.post('/board/create-col', async (req, res) => {
-    res.json(await boardManager.createColumn(req.session.board, req.body.columnName));
-})
+    const column = await boardManager.createColumn(req.session.board, req.body.columnName);
+    res.json(column);
+});
 
 router.post('/board/delete-col', async (req, res) => {
-
-})
+    await boardManager.deleteColumn(req.body.columnID);
+    res.json({ message: "Column deleted successfully" });
+});
 
 module.exports = router;

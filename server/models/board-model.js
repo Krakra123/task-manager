@@ -10,8 +10,14 @@ const boardSchema = new schema({
 
     columns: [
         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Column',
+            _id: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Column',
+            },
+            order: {
+                type: Number,
+                // required: true,
+            },
         },
     ],
 

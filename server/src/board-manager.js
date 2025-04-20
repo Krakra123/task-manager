@@ -53,6 +53,7 @@ const createColumn = async (boardName, columnName) => {
         const board = await boardCollection.findOne({title: boardName});
         if (!board) {
             console.error("Error creating column: Board not found.");
+            return;
         }
 
         const newColumn = new columnCollection({
@@ -61,7 +62,11 @@ const createColumn = async (boardName, columnName) => {
         });
         await newColumn.save();
 
-        board.columns.push(newColumn._id);
+        const newOrder = board.columns && board.columns.length > 0
+            ? Math.max(...board.columns.map(col => col.order || 0)) + 1
+            : 0;
+
+        board.columns.push({ _id: newColumn._id, order: newOrder });
         board.updatedAt = new Date();
         await board.save();
 
@@ -73,23 +78,28 @@ const createColumn = async (boardName, columnName) => {
 };
 const deleteColumn = async (columnID) => {
     try {
-        const column = await columnCollection.findOne({_id: columnID});
+        const column = await columnCollection.findOne({ _id: columnID });
         if (!column) {
             console.error("Error deleting column: Column not found.");
+            return;
         }
 
-        const board = await boardCollection.findOne({_id: column.board});
+        const board = await boardCollection.findOne({ _id: column.board });
+        if (!board) {
+            console.error("Error deleting column: Board not found.");
+            return;
+        }
 
-        board.columns = board.columns.filter(col => col._id !== columnID);
+        board.columns = board.columns.filter(col => col._id.toString() !== columnID);
         board.updatedAt = new Date();
         await board.save();
 
-        await columnCollection.deleteOne({_id: columnID});
-        console.log(`Deleted column ${columnID}".`);
+        await columnCollection.deleteOne({ _id: columnID });
+        console.log(`Deleted column ${columnID}.`);
     } catch (err) {
         console.error("Error deleting column: ", err.message);
     }
-}
+};
 const getColumnById = async (columnID) => {
     return columnCollection.findOne({_id: columnID});
 }
@@ -119,15 +129,24 @@ const getAllColumnID = async (boardName) => {
 }
 const getAllColumn = async (boardName) => {
     try {
-        const columns = await boardCollection.findOne({title: boardName}).populate('columns');
-        if (!columns) {
-            console.error(`Error getting all column: Board ${boardName} not found.`);
+        const board = await boardCollection.findOne({ title: boardName }).populate('columns._id');
+        if (!board) {
+            console.error(`Error getting all columns: Board ${boardName} not found.`);
         }
-        return columns.columns;
+
+        // // Sort columns by order
+        // return board.columns.sort((a, b) => a.order - b.order).map(col => col._id);
+        try {
+            return board.columns.sort((a, b) => a.order - b.order).map(col => col._id);
+        } catch (err) {
+            console.error("Error sorting columns: ", err.message);
+        }
+
+        return board.columns.map(col => col._id);
     } catch (err) {
-        console.error("Error getting all column: ", err.message);
+        console.error("Error getting all columns: ", err.message);
     }
-}
+};
 
 module.exports = {
     createBoard,
