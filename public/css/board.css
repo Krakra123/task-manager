@@ -227,6 +227,17 @@
     background-color: #2e2e2e;
 }
 
+.board-column-dragging {
+    background-color: var(--color-accent-secondary);
+    max-width: 1rem;
+    min-width: 1rem;
+    max-height: 5rem;
+    min-height: 5rem;
+}
+.board-column-dragging * {
+    visibility: hidden;
+}
+
 /* Create Column Button */
 #column-create-button,
 .board .create-col {
