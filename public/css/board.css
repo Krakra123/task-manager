@@ -360,3 +360,7 @@
 .member-button:hover {
     background: #777;
 }
+
+.assign-mark {
+    background: var(--accent-primary-hover);
+}

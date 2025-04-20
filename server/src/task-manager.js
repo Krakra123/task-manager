@@ -195,10 +195,11 @@ const updateTask = async (taskID, updates) => {
     }
 };
 
-const addBindUserToTask = async (userID, taskID) => {
+const addBindUserToTask = async (username, taskID) => {
     try {
         // Find the user and task
-        const user = await userCollection.findOne({ _id: userID });
+        const user = await userCollection.findOne({ username: username });
+        const userID = user._id;
         const task = await taskCollection.findOne({ _id: taskID });
 
         if (!user) {
@@ -232,9 +233,10 @@ const addBindUserToTask = async (userID, taskID) => {
     }
 };
 
-const removeBindUserFromTask = async (userID, taskID) => {
+const removeBindUserFromTask = async (username, taskID) => {
     try {
-        const user = await userCollection.findOne({ _id: userID });
+        const user = await userCollection.findOne({ username: username });
+        const userID = user._id;
         const task = await taskCollection.findOne({ _id: taskID });
 
         if (!user) {

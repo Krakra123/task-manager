@@ -164,4 +164,45 @@ router.post('/task/get-bind-user-of-task', async (req, res) => {
     }
 });
 
+router.post('/task/bind-user', async (req, res) => {
+    const { userID, taskID } = req.body;
+
+    if (!userID || !taskID) {
+        return res.status(400).json({ error: 'userID and taskID are required.' });
+    }
+
+    try {
+        console.log('taskID: ', userID);
+        const result = await taskManager.addBindUserToTask(userID, taskID);
+        if (!result) {
+            return res.status(404).json({ error: 'User or Task not found.' });
+        }
+
+        res.status(200).json({ message: 'User bound to task successfully.', user: result.user, task: result.task });
+    } catch (err) {
+        console.error('Error in /task/bind-user:', err.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+router.post('/task/unbind-user', async (req, res) => {
+    const { userID, taskID } = req.body;
+
+    if (!userID || !taskID) {
+        return res.status(400).json({ error: 'userID and taskID are required.' });
+    }
+
+    try {
+        const result = await taskManager.removeBindUserFromTask(userID, taskID);
+        if (!result) {
+            return res.status(404).json({ error: 'User or Task not found.' });
+        }
+
+        res.status(200).json({ message: 'User unbound from task successfully.', user: result.user, task: result.task });
+    } catch (err) {
+        console.error('Error in /task/unbind-user:', err.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
 module.exports = router;

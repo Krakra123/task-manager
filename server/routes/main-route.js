@@ -14,6 +14,14 @@ router.get('/', (req, res) => {
     }
 });
 
+router.get('/api/session', (req, res) => {
+    if (req.session.user) {
+        res.json(req.session);
+    } else {
+        res.status(401).json({ message: 'Not logged in' });
+    }
+});
+
 const authRoutes = require('./auth-route');
 const boardRoutes = require('./board-route');
 const taskRoutes = require('./task-route');

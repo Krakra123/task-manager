@@ -213,13 +213,15 @@ const makeTaskDraggable = (task) => {
 const handleTaskDragStart = (event) => {
     // event.dataTransfer.effectsAllowed = "move";
     requestAnimationFrame(() => {
-        event.target.className = "task-dragging";
+        event.target.classList.remove("task");
+        event.target.classList.add("task-dragging");
         event.target.classList.add("dragging");
     });
 }
 const handleTaskDragEnd = (event) => {
-    event.target.className = "task";
-    // event.target.classList.remove("dragging");
+    event.target.classList.remove("task-dragging");
+    event.target.classList.add("task");
+    event.target.classList.remove("dragging");
 }
 const handleTaskDragover = (event) => {
     event.preventDefault(); // allow drop
@@ -440,6 +442,34 @@ const displayNewTask = (columnID, taskName, taskID) => {
 
     task.setAttribute('data-id', taskID);
 
+    fetch('/task/get-bind-user-of-task', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({taskID})
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Request failed');
+            return response.json();
+        })
+        .then(data => {
+            const member = data;
+            fetch('/api/session')
+                .then(res => res.json())
+                .then(data => {
+                    const exists = member.some(user => user.username === data.user);
+                    if (exists) {
+                        const task = document.querySelector(`[data-id="${taskID}"]`);
+                        task.classList.add('assign-mark');
+                    }
+                })
+
+        })
+        .catch(err => {
+            alert('Error: ' + err.message);
+        });
+
     makeTaskDraggable(task);
 }
 
@@ -639,11 +669,11 @@ async function loadTaskMember(taskID) {
     })
     const bindMembers = await bindMemberResponse.json();
 
-    await loadAssignedMembers(bindMembers);
-    await loadUnassignedMembers(nonBindMembers);
+    await loadAssignedMembers(taskID, bindMembers);
+    await loadUnassignedMembers(taskID, nonBindMembers);
 }
 
-const createMemberButton = (name, isAssigned) => {
+const createMemberButton = (taskID, name, isAssigned) => {
     const assignedBox = document.querySelector('.assigned-members');
     const unassignedBox = document.querySelector('.unassigned-members');
 
@@ -654,30 +684,45 @@ const createMemberButton = (name, isAssigned) => {
     button.addEventListener('click', () => {
         if (isAssigned) {
             assignedBox.removeChild(button);
-            unassignedBox.appendChild(createMemberButton(name, false));
-        } else {
+            unassignedBox.appendChild(createMemberButton(taskID, name, false));
+
+            fetch('/task/unbind-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({userID: name, taskID})
+            }).then(() => {})
+         } else {
             unassignedBox.removeChild(button);
-            assignedBox.appendChild(createMemberButton(name, true));
+            assignedBox.appendChild(createMemberButton(taskID, name, true));
+
+            fetch('/task/bind-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({userID: name, taskID})
+            }).then(() => {})
         }
     });
 
     return button;
 };
-async function loadAssignedMembers(memberNames) {
+async function loadAssignedMembers(taskID, memberNames) {
     const assignedBox = document.querySelector('.assigned-members');
-    console.log(assignedBox)
     assignedBox.innerHTML = ''; // Clear old content
     memberNames.forEach(member => {
-        const btn = createMemberButton(member.name, true);
+        const btn = createMemberButton(taskID, member.username, true);
         assignedBox.appendChild(btn);
     });
 }
 
-async function loadUnassignedMembers(memberNames) {
+async function loadUnassignedMembers(taskID, memberNames) {
     const unassignedBox = document.querySelector('.unassigned-members');
     unassignedBox.innerHTML = ''; // Clear old content
     memberNames.forEach(member => {
-        const btn = createMemberButton(member.username, false);
+        const btn = createMemberButton(taskID, member.username, false);
         unassignedBox.appendChild(btn);
     });
 }
