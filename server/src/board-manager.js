@@ -15,6 +15,7 @@ const createBoard = async (boardName) => {
         return newBoard;
     } catch (err) {
         console.error("Error creating board: ", err.message);
+        throw err;
     }
 };
 const deleteBoard = async (boardName) => {
