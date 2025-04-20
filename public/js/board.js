@@ -263,6 +263,63 @@ const handleTaskDrop = async (event) => {
         Array.from(container.children).indexOf(draggedTask));
 }
 
+// HANDLE COLUMN DRAG AND DROP ==========================
+const makeColumnDraggable = (column) => {
+    column.setAttribute("draggable", "true");
+    column.addEventListener("dragstart", handleColumnDragStart);
+    column.addEventListener("dragend", handleColumnDragEnd);
+};
+
+const handleColumnDragStart = (event) => {
+    event.dataTransfer.setData("text/plain", event.target.getAttribute("data-id"));
+    event.target.classList.add("dragging");
+};
+
+const handleColumnDragEnd = async (event) => {
+    event.target.classList.remove("dragging");
+
+    // Update the column order in the database
+    await saveColumnOrder();
+};
+
+const handleColumnDrop = (event) => {
+    event.preventDefault();
+
+    const draggedColumnId = event.dataTransfer.getData("text/plain");
+    const targetColumn = event.target.closest(".board-column");
+
+    if (!targetColumn || targetColumn.getAttribute("data-id") === draggedColumnId) return;
+
+    const container = document.getElementById("column-container");
+    const draggedColumn = container.querySelector(`[data-id="${draggedColumnId}"]`);
+
+    container.insertBefore(draggedColumn, targetColumn.nextSibling);
+};
+
+const saveColumnOrder = async () => {
+    const container = document.getElementById("column-container");
+    const columnOrder = Array.from(container.children)
+        .filter(child => child.classList.contains("board-column"))
+        .map(column => column.getAttribute("data-id"));
+
+    await fetch('/board/update-column-order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ columnOrder })
+    }).catch(err => console.error("Error saving column order:", err));
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    const columns = document.querySelectorAll(".board-column");
+    columns.forEach(column => {
+        makeColumnDraggable(column);
+        column.addEventListener("dragover", (event) => event.preventDefault());
+        column.addEventListener("drop", handleColumnDrop);
+    });
+});
+
 // HANDLE ELEMENT CLICKING ON ==========================
 document.addEventListener('click', function (event) {
     if (event.target.closest('#task-add-button')) {
@@ -303,6 +360,10 @@ const displayNewColumn = (columnName, columnID) => {
 
     column.setAttribute('data-id', columnID);
     column.querySelector('.task-container').setAttribute('data-id', columnID);
+
+    makeColumnDraggable(column); // Make the new column draggable
+    column.addEventListener("dragover", (event) => event.preventDefault());
+    column.addEventListener("drop", handleColumnDrop);
 
     makeColumnDroppable(column);
 };

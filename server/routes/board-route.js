@@ -39,4 +39,15 @@ router.post('/board/delete-col', async (req, res) => {
     res.json({ message: "Column deleted successfully" });
 });
 
+router.post('/board/update-column-order', async (req, res) => {
+    try {
+        const { columnOrder } = req.body;
+        const result = await boardManager.updateColumnOrder(req.session.board, columnOrder);
+        res.json(result);
+    } catch (err) {
+        console.error("Error updating column order:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;

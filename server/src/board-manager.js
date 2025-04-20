@@ -148,6 +148,32 @@ const getAllColumn = async (boardName) => {
     }
 };
 
+const updateColumnOrder = async (boardName, columnOrder) => {
+    try {
+        const board = await boardCollection.findOne({ title: boardName });
+        if (!board) {
+            throw new Error("Board not found");
+        }
+
+        // Update the order of columns
+        board.columns = board.columns.map((col) => {
+            const newOrder = columnOrder.indexOf(col._id.toString());
+            if (newOrder === -1) {
+                throw new Error(`Column with ID ${col._id} not found in the provided order`);
+            }
+            return { ...col, order: newOrder };
+        });
+
+        board.markModified('columns');
+        await board.save();
+
+        return { message: "Column order updated successfully" };
+    } catch (err) {
+        console.error("Error updating column order:", err.message);
+        throw err;
+    }
+};
+
 module.exports = {
     createBoard,
     deleteBoard,
@@ -160,5 +186,5 @@ module.exports = {
     getColumnIDByIndex,
     getAllColumnID,
     getAllColumn,
-
+    updateColumnOrder,
 };
