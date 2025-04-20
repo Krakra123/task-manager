@@ -30,7 +30,7 @@ const deleteColumn = async (columnID) => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ columnID })
+        body: JSON.stringify({columnID})
     })
         .then(response => {
             if (!response.ok) throw new Error('Request failed');
@@ -225,10 +225,10 @@ const handleTaskDragEnd = (event) => {
 const handleTaskDragover = (event) => {
     event.preventDefault(); // allow drop
 
-    const draggedTask = document.querySelector(".dragging");
+    const draggedTask = document.querySelector(".task-dragging");
     const target = event.target.closest(".task, .task-container");
 
-    if (!target || target === draggedTask) return;
+    if (!draggedTask || !target || target === draggedTask) return;
 
     if (target.classList.contains("task-container")) {
         const lastTask = target.lastElementChild;
@@ -252,10 +252,10 @@ const handleTaskDragover = (event) => {
 const handleTaskDrop = async (event) => {
     event.preventDefault();
 
-    const draggedTask = document.querySelector(".dragging");
+    const draggedTask = document.querySelector(".task-dragging");
     const target = event.target.closest(".task, .task-container");
 
-    if (!target || target === draggedTask) return;
+    if (!draggedTask || !target || target === draggedTask) return;
 
     const container = draggedTask.parentElement;
     await moveTask(draggedTask.getAttribute('data-id'),
@@ -271,29 +271,63 @@ const makeColumnDraggable = (column) => {
 };
 
 const handleColumnDragStart = (event) => {
-    event.dataTransfer.setData("text/plain", event.target.getAttribute("data-id"));
+    // event.dataTransfer.setData("column-id", event.target.getAttribute("data-id"));
+    event.target.className = "board-column-dragging";
     event.target.classList.add("dragging");
 };
 
 const handleColumnDragEnd = async (event) => {
-    event.target.classList.remove("dragging");
+    event.target.className = "board-column";
+    // event.target.classList.remove("dragging");
 
-    // Update the column order in the database
     await saveColumnOrder();
+};
+
+const handleColumnDragOver = (event) => {
+    event.preventDefault();
+
+    const container = document.getElementById("column-container");
+    const draggedColumn = container.querySelector(`.board-column-dragging`);
+    const draggedColumnId = draggedColumn.getAttribute('data-id');
+    const targetColumn = event.target.closest(".board-column");
+
+    if (!targetColumn || targetColumn.getAttribute("data-id") === draggedColumnId) return;
+    if (targetColumn.getAttribute('data-id') === draggedColumnId) return
+
+    const {left, width} = targetColumn.getBoundingClientRect();
+    const distance = left + width / 2;
+
+    if (event.clientX < distance) {
+        container.insertBefore(draggedColumn, targetColumn);
+    } else {
+        const nextTargetColumn = targetColumn.nextSibling;
+        if (nextTargetColumn) {
+            container.insertBefore(draggedColumn, targetColumn.nextSibling);
+        } else {
+            container.appendChild(draggedColumn);
+        }
+    }
 };
 
 const handleColumnDrop = (event) => {
     event.preventDefault();
-
-    const draggedColumnId = event.dataTransfer.getData("text/plain");
-    const targetColumn = event.target.closest(".board-column");
-
-    if (!targetColumn || targetColumn.getAttribute("data-id") === draggedColumnId) return;
-
-    const container = document.getElementById("column-container");
-    const draggedColumn = container.querySelector(`[data-id="${draggedColumnId}"]`);
-
-    container.insertBefore(draggedColumn, targetColumn.nextSibling);
+    //
+    // const draggedColumnId = event.dataTransfer.getData("column-id");
+    // const targetColumn = event.target.closest(".board-column");
+    //
+    // if (!targetColumn || targetColumn.getAttribute("data-id") === draggedColumnId) return;
+    //
+    // const container = document.getElementById("column-container");
+    // const draggedColumn = container.querySelector(`[data-id="${draggedColumnId}"]`);
+    //
+    // const {top, width} = targetColumn.getBoundingClientRect();
+    // const distance = top + width / 2;
+    //
+    // if (event.clientY < distance) {
+    //     container.insertBefore(draggedColumn, targetColumn);
+    // } else {
+    //     container.insertBefore(draggedColumn, targetColumn.nextSibling);
+    // }
 };
 
 const saveColumnOrder = async () => {
@@ -307,16 +341,20 @@ const saveColumnOrder = async () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ columnOrder })
+        body: JSON.stringify({columnOrder})
     }).catch(err => console.error("Error saving column order:", err));
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+    const columnContainer = document.querySelector('.column-container');
+    columnContainer.addEventListener("dragover", handleColumnDragOver);
+    columnContainer.addEventListener("drop", handleColumnDrop);
+
     const columns = document.querySelectorAll(".board-column");
     columns.forEach(column => {
-        makeColumnDraggable(column);
-        column.addEventListener("dragover", (event) => event.preventDefault());
-        column.addEventListener("drop", handleColumnDrop);
+        const container = column.querySelector(".task-container");
+        container.addEventListener("dragover", handleTaskDragover);
+        container.addEventListener("drop", handleTaskDrop);
     });
 });
 
@@ -336,7 +374,8 @@ document.addEventListener('click', function (event) {
 
     const clickedTask = event.target.closest('.task');
     if (clickedTask) {
-        loadEditTaskForm(clickedTask.getAttribute('data-id')).then((task) => {});
+        loadEditTaskForm(clickedTask.getAttribute('data-id')).then((task) => {
+        });
     }
 });
 
