@@ -6,7 +6,6 @@ router.get('/', (req, res) => {
         user: req.session.user
     }
 
-    // FIXME
     if (req.session.user) {
         res.redirect('/board');
     } else {
@@ -21,6 +20,14 @@ router.get('/api/session', (req, res) => {
         res.status(401).json({ message: 'Not logged in' });
     }
 });
+
+router.get('/about', (req, res) => {
+
+    const locals = {
+        user: req.session.user
+    }
+    res.render('index', locals);
+})
 
 const authRoutes = require('./auth-route');
 const boardRoutes = require('./board-route');
