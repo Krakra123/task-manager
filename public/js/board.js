@@ -370,8 +370,7 @@ document.addEventListener('click', function (event) {
         const button = event.target.closest('.task-delete-button');
         const task = button.closest('.task');
         handleDeleteTask(task);
-    }
-    else {
+    } else {
         const clickedTask = event.target.closest('.task');
         if (clickedTask) {
             loadEditTaskForm(clickedTask.getAttribute('data-id')).then((task) => {
@@ -382,7 +381,25 @@ document.addEventListener('click', function (event) {
 
 // EVENT START LOADING ==========================
 document.addEventListener('DOMContentLoaded', () => {
+    loadAllBoards();
     loadAllColumns().then();
+
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarOverlayToggle = document.getElementById('sidebar-overlay');
+    const sidebar = document.getElementById('sidebar');
+
+    sidebarToggle.classList.remove('hidden');
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('hidden');
+        sidebar.classList.toggle('show');
+        sidebarOverlayToggle.classList.toggle('hidden');
+    });
+
+    sidebarOverlayToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('hidden');
+        sidebar.classList.toggle('show');
+        sidebarOverlayToggle.classList.toggle('hidden');
+    });
 });
 
 // DISPLAYING DATA TO FRONTEND ==========================
@@ -463,3 +480,139 @@ const loadEditTaskForm = async (taskID) => {
 
 
 }
+
+const createButton = document.getElementById('board-create-button');
+const boardList = document.querySelector('.board-list');
+
+
+const loadAllBoards = async () => {
+    try {
+        const response = await fetch('/board/get-all-boards', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch boards');
+
+        const boardTitles = await response.json();
+        const boardList = document.querySelector('.board-list');
+
+        // Clear any previous content
+        boardList.innerHTML = '';
+
+        boardTitles.forEach(title => {
+            displayNewBoardOnSidebar(title, boardList);
+        });
+
+    } catch (err) {
+        console.error('Error loading boards:', err.message);
+    }
+};
+
+const displayNewBoardOnSidebar = (title, boardList) => {
+    const li = document.createElement('li');
+    li.classList.add('board-list-item');
+
+    const titleSpan = document.createElement('span');
+    titleSpan.textContent = title;
+    titleSpan.classList.add('board-title');
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = '🗑';
+    deleteBtn.classList.add('delete-board-button');
+
+    deleteBtn.addEventListener('click', async () => {
+        try {
+            fetch('/board/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({boardName: title}),
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Request failed');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.gonnaReload) window.location.href = '/board'
+                    li.remove(); // remove from UI if successful
+                })
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
+    });
+
+    titleSpan.addEventListener('click', async () => {
+        try {
+            fetch('/board/switch', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({title}),
+            })
+                .then(() => {
+                    window.location.href = '/board'
+                })
+                .catch(err => {
+                    alert('Error: ' + err.message);
+                });
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
+    })
+
+    li.appendChild(titleSpan);
+    li.appendChild(deleteBtn);
+    boardList.appendChild(li);
+}
+
+createButton.addEventListener('click', () => {
+    // Prevent multiple inputs
+    if (boardList.querySelector('.board-name-input')) return;
+
+    const li = document.createElement('li');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Enter board name...';
+    input.classList.add('board-name-input');
+
+    li.appendChild(input);
+    boardList.appendChild(li);
+    input.focus();
+
+    input.addEventListener('keydown', async (event) => {
+        if (event.key === 'Enter') {
+            const boardName = input.value.trim();
+            if (!boardName) return;
+
+            try {
+                const response = await fetch('/board/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({boardName})
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    alert(err.error || 'Failed to create board');
+                    return;
+                }
+
+                const data = await response.json();
+
+                displayNewBoardOnSidebar(data.board.title, boardList);
+                input.remove();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        } else if (event.key === 'Escape') {
+            li.remove(); // Cancel on Escape
+        }
+    });
+});

@@ -2,6 +2,16 @@ const boardCollection = require("../models/board-model").boardCollection;
 const columnCollection = require("../models/board-model").boardColumnCollection;
 const taskCollection = require("../models/board-model").taskCollection;
 
+const getAllBoards = async () => {
+    try {
+        const boards = await boardCollection.find({}, 'title'); // Only fetch the "title" field
+        return boards.map(board => board.title);
+    } catch (err) {
+        console.error('Error fetching board titles:', err);
+        return [];
+    }
+}
+
 const createBoard = async (boardName) => {
     try {
         if (await hasBoard(boardName)) {
@@ -27,8 +37,6 @@ const deleteBoard = async (boardName) => {
 
         await columnCollection.deleteMany({_id: {$in: board.columns}});
         await boardCollection.deleteOne({_id: board._id});
-
-        console.log("Board deleted: ", boardName);
     } catch (err) {
         console.error("Error deleting board:", err.message);
     }
@@ -176,6 +184,7 @@ const updateColumnOrder = async (boardName, columnOrder) => {
 };
 
 module.exports = {
+    getAllBoards,
     createBoard,
     deleteBoard,
     hasBoard,

@@ -2,16 +2,17 @@
 
 /* ==== THEME TỐI NGẢ XANH ==== */
 :root {
-    --primary:    #1e90ff;   /* màu chính */
-    --text:       #eceff4;   /* màu chữ */
-    --bg:         #0d1117;   /* nền header */
-    --hover-bg:   #16233a;   /* nền khi hover */
-    --shadow:     rgba(0,0,0,0.5);
-    --font:       'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  /* ============================= */
-  
-  .header {
+    --primary: #1e90ff; /* màu chính */
+    --text: #eceff4; /* màu chữ */
+    --bg: #0d1117; /* nền header */
+    --hover-bg: #16233a; /* nền khi hover */
+    --shadow: rgba(0, 0, 0, 0.5);
+    --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ============================= */
+
+.header {
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -21,26 +22,26 @@
     padding: 0.75rem 2rem;
     background: var(--bg);
     box-shadow: 0 2px 8px var(--shadow);
-  }
-  
-  /* ----- NAV TRÁI ----- */
-  .header-left {
+}
+
+/* ----- NAV TRÁI ----- */
+.header-left {
     display: flex;
     align-items: center;
-  }
-  
-  /* Logo */
-  .header-left .header-logo {
+}
+
+/* Logo */
+.header-left .header-logo {
     font-family: var(--font);
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--primary);
     text-decoration: none;
     margin-right: 2rem;
-  }
-  
-  /* HOME / ABOUT (không đổi HTML nhưng target bằng selector) */
-  .header-left a:not(.header-logo) {
+}
+
+/* HOME / ABOUT (không đổi HTML nhưng target bằng selector) */
+.header-left a:not(.header-logo) {
     font-family: var(--font);
     font-size: 0.95rem;
     font-weight: 500;
@@ -49,25 +50,130 @@
     margin-right: 1.5rem;
     padding: 0.25rem 0.5rem;
     transition: color 0.3s, background 0.3s;
-  }
-  
-  .header-left a:not(.header-logo):hover {
+}
+
+.header-left a:not(.header-logo):hover {
     color: var(--bg);
     background: var(--primary);
     border-radius: 4px;
-  }
-  
-  /* ----- PHẦN ĐĂNG NHẬP / ĐĂNG KÝ ----- */
-  .header-right {
+}
+
+/* ----- PHẦN ĐĂNG NHẬP / ĐĂNG KÝ ----- */
+.header-right {
     display: flex;
     align-items: center;
-  }
-  
-  /* ==== THÊM CHO NỀN XANH KHI HOVER ==== */
+}
+
+/* ==== THÊM CHO NỀN XANH KHI HOVER ==== */
 .header-right .header-button:hover {
     background: var(--primary); /* xanh chính của theme */
-    color: #fff;                /* chữ trắng cho tương phản */
-  }
-  
-  /* Style chung cho nút LOG IN / SIGN UP */
-  
+    color: #fff; /* chữ trắng cho tương phản */
+}
+
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 400px;
+    background-color: #222;
+    color: white;
+    padding-top: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar .board-create-button {
+    background-color: var(--accent-primary);
+    color: #fff;
+    padding: 0.75rem 3rem;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background var(--transition);
+    text-align: center;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5); /* translucent black */
+    z-index: 999; /* just below sidebar (1000) */
+    display: none;
+}
+
+.sidebar.show ~ .sidebar-overlay {
+    display: block;
+}
+
+.sidebar-content li {
+    margin: 20px;
+}
+
+.sidebar-content a {
+    color: white;
+    width: 100%;
+    text-decoration: none;
+    font-size: 18px;
+}
+.sidebar-content a:hover {
+    background: var(--hover-bg);
+}
+
+.sidebar.show {
+    transform: translateX(0);
+}
+
+.show {
+    display: flex;
+}
+
+.hidden {
+    display: none;
+}
+
+.board-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    width: 350px;
+    overflow-wrap: break-word;
+}
+
+.board-title {
+    flex-grow: 1;
+    max-width: 300px;
+    overflow-wrap: break-word;
+}
+
+.delete-board-button {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.25rem;
+}
+.board-list-item:hover {
+    background: var(--accent-primary-hover);
+}
+.delete-board-button:hover {
+    background: var(--accent-primary-hover);
+}
+
+.board-create-button:hover {
+    background: var(--accent-primary-hover);
+
+}

@@ -1,9 +1,19 @@
 <link rel="stylesheet" href="/css/header.css">
 <header class="header">
 
+    <div id="sidebar" class="sidebar hidden">
+        <div class="sidebar-content">
+            <button id="board-create-button" class="board-create-button btn">CREATE BOARD...</button>
+            <ul class="board-list">
+            </ul>
+        </div>
+    </div>
+    <div id="sidebar-overlay" class="sidebar-overlay hidden"></div>
+
     <nav class="header-left">
+        <a id="sidebar-toggle" class="sidebar-toggle hidden">☰</a>
+
         <a href="/" class="header-logo">TaskManager</a>
-        <a href="/" class="">HOME</a>
         <a href="/about" class="">ABOUT</a>
     </nav>
 
