@@ -469,6 +469,7 @@ const loadEditTaskForm = async (taskID) => {
             form.querySelector('.task-desc').value = description;
 
             document.body.appendChild(overlay);
+            loadTaskMember(taskID);
 
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) overlay.remove();
@@ -616,3 +617,67 @@ createButton.addEventListener('click', () => {
         }
     });
 });
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+async function loadTaskMember(taskID) {
+    const nonBindMemberResponse = await fetch('/task/get-nonbind-user-of-task', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({taskID})
+    })
+    const nonBindMembers = await nonBindMemberResponse.json();
+
+    const bindMemberResponse = await fetch('/task/get-bind-user-of-task', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({taskID})
+    })
+    const bindMembers = await bindMemberResponse.json();
+
+    await loadAssignedMembers(bindMembers);
+    await loadUnassignedMembers(nonBindMembers);
+}
+
+const createMemberButton = (name, isAssigned) => {
+    const assignedBox = document.querySelector('.assigned-members');
+    const unassignedBox = document.querySelector('.unassigned-members');
+
+    const button = document.createElement('button');
+    button.textContent = name;
+    button.classList.add('member-button');
+
+    button.addEventListener('click', () => {
+        if (isAssigned) {
+            assignedBox.removeChild(button);
+            unassignedBox.appendChild(createMemberButton(name, false));
+        } else {
+            unassignedBox.removeChild(button);
+            assignedBox.appendChild(createMemberButton(name, true));
+        }
+    });
+
+    return button;
+};
+async function loadAssignedMembers(memberNames) {
+    const assignedBox = document.querySelector('.assigned-members');
+    console.log(assignedBox)
+    assignedBox.innerHTML = ''; // Clear old content
+    memberNames.forEach(member => {
+        const btn = createMemberButton(member.name, true);
+        assignedBox.appendChild(btn);
+    });
+}
+
+async function loadUnassignedMembers(memberNames) {
+    const unassignedBox = document.querySelector('.unassigned-members');
+    unassignedBox.innerHTML = ''; // Clear old content
+    memberNames.forEach(member => {
+        const btn = createMemberButton(member.username, false);
+        unassignedBox.appendChild(btn);
+    });
+}

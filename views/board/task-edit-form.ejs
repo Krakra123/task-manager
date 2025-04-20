@@ -4,6 +4,26 @@
 
         <input type="text" class="title" name="title" placeholder="Task name..." value="">
 
+        <div class="member-section">
+            <p class="member-title">Members</p>
+
+            <div class="member-dropdowns">
+                <div class="member-list">
+                    <p>Assigned</p>
+                    <div class="assigned-members member-box"></div>
+                </div>
+
+                <div class="member-list">
+                    <p>Unassigned</p>
+                    <div class="unassigned-members member-box"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="selected-members" id="selected-members">
+            <!-- Selected member boxes will go here -->
+        </div>
+
         <p class="description">Description</p>
         <textarea class="task-desc" name="description" placeholder="Enter task description..."></textarea>
 

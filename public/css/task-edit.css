@@ -1,65 +1,65 @@
-body {
+.task-edit-form body {
     font-family: 'Segoe UI', sans-serif;
     background-color: #1e1e2f;
     color: #fff;
     margin: 0;
     padding: 20px;
-  }
-  
-  .board {
+}
+
+.task-edit-form .board {
     display: flex;
     gap: 20px;
     overflow-x: auto;
-  }
-  
-  .column {
+}
+
+.task-edit-form .column {
     background-color: #2c2f48;
     padding: 20px;
     border-radius: 10px;
-    width: 300px;
+    width: 700px;
     flex-shrink: 0;
-  }
-  
-  .column h3 {
+}
+
+.task-edit-form .column h3 {
     text-align: center;
     margin-bottom: 15px;
     font-size: 18px;
     color: #7da9ff;
-  }
-  
-  .task {
+}
+
+.task-edit-form .task {
     background-color: #383b56;
     padding: 15px;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
-  }
-  
-  .task-name {
+}
+
+.task-edit-form .task-name {
     font-size: 16px;
     padding: 8px;
     border-radius: 5px;
     border: none;
     margin-bottom: 10px;
-  }
-  
-  .task-desc {
-    height: 100px;
+}
+
+.task-edit-form .task-desc {
+    height: 300px;
     padding: 8px;
     border-radius: 5px;
     border: none;
     resize: vertical;
     margin-bottom: 10px;
-  }
-  
-  .button-row {
+}
+
+.task-edit-form .button-row {
     display: flex;
     gap: 10px;
     justify-content: flex-start;
     margin-top: 10px;
-  }
-  
-  .save-btn, .cancel-btn, .edit-btn {
+}
+
+.task-edit-form .save-btn, .cancel-btn, .edit-btn {
     padding: 8px 14px;
     background-color: #4c84ff;
     color: white;
@@ -67,16 +67,16 @@ body {
     border-radius: 5px;
     cursor: pointer;
     transition: background 0.3s ease;
-  }
-  
-  .save-btn:hover, .edit-btn:hover {
+}
+
+.task-edit-form .save-btn:hover, .edit-btn:hover {
     background-color: #3465cc;
-  }
-  
-  .cancel-btn {
+}
+
+.task-edit-form .cancel-btn {
     background-color: #888;
-  }
-  
-  .cancel-btn:hover {
+}
+
+.task-edit-form .cancel-btn:hover {
     background-color: #666;
-  }
+}

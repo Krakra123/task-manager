@@ -264,6 +264,37 @@ const removeBindUserFromTask = async (userID, taskID) => {
     }
 };
 
+const getAllUser = async () => {
+    try {
+        return await userCollection.find({}, 'username');
+    } catch (err) {
+        console.error('Error fetching all users:', err);
+        return [];
+    }
+};
+
+const getNonBindUserOfTask = async (taskID) => {
+    try {
+        const task = await taskCollection.findById(taskID).populate('users', '_id');
+        const assignedUserIds = task.users.map(user => user._id.toString());
+
+        return await userCollection.find({ _id: { $nin: assignedUserIds } }, 'username');
+    } catch (err) {
+        console.error('Error fetching non-bound users:', err);
+        return [];
+    }
+};
+
+const getBindUserOfTask = async (taskID) => {
+    try {
+        const task = await taskCollection.findById(taskID).populate('users', 'username');
+        return task.users;
+    } catch (err) {
+        console.error('Error fetching bound users:', err);
+        return [];
+    }
+};
+
 module.exports = {
     createTask,
     deleteTask,
@@ -273,6 +304,10 @@ module.exports = {
     getAllTask,
     moveTask,
     updateTask,
+
+    getAllUser,
+    getNonBindUserOfTask,
+    getBindUserOfTask,
     addBindUserToTask,
     removeBindUserFromTask,
 

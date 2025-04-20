@@ -128,4 +128,40 @@ router.post('/task/get-task', async (req, res) => {
     }
 });
 
+router.post('/task/get-all-users', async (req, res) => {
+    try {
+        const users = await taskManager.getAllUser();
+        res.status(200).json(users);
+    } catch (err) {
+        console.error("Error getting all users:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+router.post('/task/get-nonbind-user-of-task', async (req, res) => {
+    try {
+        const { taskID } = req.body;
+        if (!taskID) {
+            return res.status(400).json({ error: "taskID is required" });
+        }
+        const users = await taskManager.getNonBindUserOfTask(taskID);
+        res.status(200).json(users);
+    } catch (err) {
+        console.error("Error getting non-bound users:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+router.post('/task/get-bind-user-of-task', async (req, res) => {
+    try {
+        const { taskID } = req.body;
+        if (!taskID) {
+            return res.status(400).json({ error: "taskID is required" });
+        }
+        const users = await taskManager.getBindUserOfTask(taskID);
+        res.status(200).json(users);
+    } catch (err) {
+        console.error("Error getting bound users:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
