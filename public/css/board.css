@@ -68,10 +68,6 @@
     overflow: hidden; /* ensure rounding clips children */
 }
 
-.board-column:hover {
-    transform: translateY(-4px);
-}
-
 /* Column Header */
 .board-column .column-header {
     display: flex;
@@ -228,14 +224,15 @@
 }
 
 .board-column-dragging {
-    background-color: var(--color-accent-secondary);
+    background-color: var(--accent-primary);
     max-width: 1rem;
     min-width: 1rem;
     max-height: 5rem;
     min-height: 5rem;
 }
-.board-column-dragging * {
+.board-column-dragging .column-content * {
     visibility: hidden;
+    pointer-events: none;
 }
 
 /* Create Column Button */

@@ -18,16 +18,19 @@
 
 <template id="board-column-template">
     <div class="board-column">
-        <div class="column-header">
-            <h3 id="title"></h3>
-            <button id="task-add-button"><i class="bi bi-plus"></i></button>
+        <div class="column-draggable" style="background: var(--accent-primary); height: 0.5rem; width: 1rem"></div>
+        <div class="column-content">
+            <div class="column-header">
+                <h3 id="title"></h3>
+                <button id="task-add-button"><i class="bi bi-plus"></i></button>
+            </div>
+            <div class="task-container"></div>
         </div>
-        <div class="task-container"></div>
     </div>
 </template>
 <template id="board-column-creation-template">
     <div class="board-column-creation">
-        <input type="text" id="board-column-creation-input" placeholder="Column name..." />
+        <input type="text" id="board-column-creation-input" placeholder="Column name..."/>
     </div>
 </template>
 
@@ -41,7 +44,7 @@
 </template>
 <template id="task-creation-template">
     <div class="task-creation">
-        <input class="input" type="text" id="task-creation-input" placeholder="Task title..." />
+        <input class="input" type="text" id="task-creation-input" placeholder="Task title..."/>
     </div>
 </template>
 

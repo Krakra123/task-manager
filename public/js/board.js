@@ -211,8 +211,7 @@ const makeTaskDraggable = (task) => {
     return task;
 }
 const handleTaskDragStart = (event) => {
-    event.dataTransfer.effectsAllowed = "move";
-    event.dataTransfer.setData("text/plain", "");
+    // event.dataTransfer.effectsAllowed = "move";
     requestAnimationFrame(() => {
         event.target.className = "task-dragging";
         event.target.classList.add("dragging");
@@ -265,21 +264,22 @@ const handleTaskDrop = async (event) => {
 
 // HANDLE COLUMN DRAG AND DROP ==========================
 const makeColumnDraggable = (column) => {
-    column.setAttribute("draggable", "true");
-    column.addEventListener("dragstart", handleColumnDragStart);
-    column.addEventListener("dragend", handleColumnDragEnd);
+    const draggable = column.querySelector(".column-draggable");
+    draggable.setAttribute("draggable", "true");
+    draggable.addEventListener("dragstart", handleColumnDragStart);
+    draggable.addEventListener("dragend", handleColumnDragEnd);
 };
 
 const handleColumnDragStart = (event) => {
-    // event.dataTransfer.setData("column-id", event.target.getAttribute("data-id"));
-    event.target.className = "board-column-dragging";
-    event.target.classList.add("dragging");
+    const column = event.target.parentElement;
+    column.className = "board-column-dragging";
+    column.classList.add("dragging");
 };
 
 const handleColumnDragEnd = async (event) => {
-    event.target.className = "board-column";
-    // event.target.classList.remove("dragging");
-
+    const column = event.target.parentElement;
+    console.log(column.className);
+    column.className = "board-column";
     await saveColumnOrder();
 };
 
@@ -371,11 +371,12 @@ document.addEventListener('click', function (event) {
         const task = button.closest('.task');
         handleDeleteTask(task);
     }
-
-    const clickedTask = event.target.closest('.task');
-    if (clickedTask) {
-        loadEditTaskForm(clickedTask.getAttribute('data-id')).then((task) => {
-        });
+    else {
+        const clickedTask = event.target.closest('.task');
+        if (clickedTask) {
+            loadEditTaskForm(clickedTask.getAttribute('data-id')).then((task) => {
+            });
+        }
     }
 });
 
