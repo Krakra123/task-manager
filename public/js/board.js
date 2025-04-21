@@ -504,6 +504,13 @@ const loadEditTaskForm = async (taskID) => {
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) overlay.remove();
             });
+
+            const generateDes = document.querySelector('.des-gen');
+            generateDes.removeEventListener('click', (e) => {});
+            const message = 'What capital of France'; // TODO
+            generateDes.addEventListener('click', () => {
+                makegenerateDes(taskID);
+            })
         })
         .catch(err => {
             alert('Error: ' + err.message);
@@ -726,3 +733,30 @@ async function loadUnassignedMembers(taskID, memberNames) {
         unassignedBox.appendChild(btn);
     });
 }
+
+async function makegenerateDes(taskID) {
+
+
+    // await makeAIResponse('what the capital of VIETNAM')
+    //     .then(data => {
+    //         console.log(data)
+    //     });
+}
+
+const makeAIResponse = async (message) => {
+    try {
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message })
+        });
+
+        if (!response.ok) throw new Error('Request failed');
+
+        return await response.json();  // Return the data to be used later
+    } catch (err) {
+        alert('Error: ' + err.message);  // Handle errors
+    }
+};
