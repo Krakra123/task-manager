@@ -251,11 +251,13 @@ const removeBindUserFromTask = async (username, taskID) => {
 
         // Remove the user from the task's users array
         task.users = task.users.filter(id => id.toString() !== userID);
+        task.users.remove(userID);
         task.updatedAt = new Date();
         await task.save();
 
         // Remove the task from the user's tasks array
         user.tasks = user.tasks.filter(id => id.toString() !== taskID);
+        user.tasks.remove(taskID);
         await user.save();
 
         console.log(`Successfully removed binding of user ${userID} from task ${taskID}.`);
