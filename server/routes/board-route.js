@@ -116,9 +116,38 @@ router.post('/board/create-col', async (req, res) => {
     res.json(column);
 });
 
+router.post('/board/edit-col', async (req, res) => {
+    try {
+        const { columnID, newTitle } = req.body;
+
+        if (!columnID || !newTitle || newTitle.trim() === "") {
+            return res.status(400).json({ error: "Column ID and new title are required" });
+        }
+
+        const updatedColumn = await boardManager.editColumnName(columnID, newTitle);
+        console.log("Column " + columnID + " name updated successfully: " + updatedColumn);
+        res.redirect('/board');
+    } catch (err) {
+        console.error("Error editing column name:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 router.post('/board/delete-col', async (req, res) => {
-    await boardManager.deleteColumn(req.body.columnID);
-    res.json({message: "Column deleted successfully"});
+    try {
+        const { columnID } = req.body;
+
+        if (!columnID) {
+            return res.status(400).json({ error: "Column ID is required" });
+        }
+
+        await boardManager.deleteColumn(columnID);
+        console.log("Column " + columnID + " deleted successfully");
+        res.redirect('/board');
+    } catch (err) {
+        console.error("Error deleting column:", err.message);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 router.post('/board/update-column-order', async (req, res) => {
