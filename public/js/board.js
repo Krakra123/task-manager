@@ -506,7 +506,8 @@ const loadEditTaskForm = async (taskID) => {
             });
 
             const generateDes = document.querySelector('.des-gen');
-            generateDes.removeEventListener('click', (e) => {});
+            generateDes.removeEventListener('click', (e) => {
+            });
             const message = 'What capital of France'; // TODO
             generateDes.addEventListener('click', () => {
                 makegenerateDes(taskID);
@@ -699,8 +700,9 @@ const createMemberButton = (taskID, name, isAssigned) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({userID: name, taskID})
-            }).then(() => {})
-         } else {
+            }).then(() => {
+            })
+        } else {
             unassignedBox.removeChild(button);
             assignedBox.appendChild(createMemberButton(taskID, name, true));
 
@@ -710,12 +712,14 @@ const createMemberButton = (taskID, name, isAssigned) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({userID: name, taskID})
-            }).then(() => {})
+            }).then(() => {
+            })
         }
     });
 
     return button;
 };
+
 async function loadAssignedMembers(taskID, memberNames) {
     const assignedBox = document.querySelector('.assigned-members');
     assignedBox.innerHTML = ''; // Clear old content
@@ -735,12 +739,29 @@ async function loadUnassignedMembers(taskID, memberNames) {
 }
 
 async function makegenerateDes(taskID) {
+    const res = await fetch('/get-board-data', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({id: taskID})
+    })
+        .then(res => res.text())
+        .then(async data => {
+            let prompt = 'You are an expert project assistant specializing in task management.\n' +
+                'Given a Kanban board\'s data, your role is to fill in clear, complete, and helpful task descriptions for each task that is missing or incomplete.';
+            prompt += 'Please remember only answer the task description that are need to fill/change, do not answer anything other than that.';
+            prompt += '\n\n';
+            prompt += `Here can you fill the description of the task: \n${data}`;
 
+            prompt += '\n\nPlease remember only answer the task description that are need to fill/change, do not answer anything other than that: Do not try to title it, just answer plain description without any thing else'
 
-    // await makeAIResponse('what the capital of VIETNAM')
-    //     .then(data => {
-    //         console.log(data)
-    //     });
+            await makeAIResponse(prompt)
+                .then(data => {
+                    console.log(data.reply)
+                    // TODO
+                });
+        })
 }
 
 const makeAIResponse = async (message) => {
@@ -750,7 +771,7 @@ const makeAIResponse = async (message) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ message })
+            body: JSON.stringify({message})
         });
 
         if (!response.ok) throw new Error('Request failed');
