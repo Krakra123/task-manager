@@ -425,6 +425,65 @@ const displayNewColumn = (columnName, columnID) => {
     column.addEventListener("drop", handleColumnDrop);
 
     makeColumnDroppable(column);
+
+    column.querySelectorAll('.column-menu-button').forEach(menuButton => {
+        menuButton.addEventListener('click', () => {
+            const menu = menuButton.nextElementSibling;
+            menu.classList.toggle('hidden');
+        });
+    });
+
+    column.querySelectorAll('.column-edit-button').forEach(editButton => {
+        editButton.addEventListener('click', async () => {
+            const title = column.querySelector('#title');
+            const oldTitle = title.innerText;
+            const columnID = editButton.closest('.board-column').dataset.id;
+
+            // Replace title with an input
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = oldTitle;
+            input.className = 'edit-title-input';
+            title.replaceWith(input);
+
+            // Handle Enter key
+            input.addEventListener('keydown', async (e) => {
+                if (e.key === 'Enter') {
+                    const newTitle = input.value.trim();
+                    if (!newTitle) return;
+
+                    // POST to server
+                    await fetch('/board/edit-col', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ columnID, newTitle })
+                    });
+
+                    // Reload page after editing
+                    window.location.reload();
+                }
+            });
+
+            input.focus();
+        });
+    });
+
+    column.querySelectorAll('.column-delete-button').forEach(deleteButton => {
+        deleteButton.addEventListener('click', async () => {
+            const columnID = deleteButton.closest('.board-column').dataset.id;
+
+            if (confirm("Are you sure you want to delete this column?")) {
+                await fetch('/board/delete-col', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ columnID })
+                });
+
+                // Reload page after deleting
+                window.location.reload();
+            }
+        });
+    });
 };
 
 const displayNewTask = (columnID, taskName, taskID) => {
@@ -755,7 +814,6 @@ async function makegenerateDes(taskID) {
             prompt += `Here can you fill the description of the task: \n${data}`;
 
             prompt += '\n\nPlease remember only answer the task description that are need to fill/change, do not answer anything other than that: Do not try to title it, just answer plain description without any thing else'
-
 
 
             await makeAIResponse(prompt)

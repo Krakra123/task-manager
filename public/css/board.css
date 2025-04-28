@@ -364,3 +364,43 @@
 .assign-mark {
     background: var(--accent-primary-hover);
 }
+
+.column-menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+.column-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--color-background);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    margin-right: 5px;
+}
+
+.column-menu.hidden {
+    display: none;
+}
+
+.column-menu button {
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    text-align: left;
+    cursor: pointer;
+    color: white;
+    z-index: 1001;
+}
+
+.column-menu button:hover {
+    background: #444;
+}
+
+.column-menu-container {
+    padding-right: 5px;
+}
