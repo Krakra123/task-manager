@@ -23,6 +23,7 @@
     "jsonwebtoken": "^9.0.2",
     "method-override": "^3.0.0",
     "mongoose": "^8.13.2",
+    "openai": "^4.96.0",
     "tasks-manager": "file:"
   },
   "devDependencies": {
