@@ -183,6 +183,25 @@ const updateColumnOrder = async (boardName, columnOrder) => {
     }
 };
 
+const editColumnName = async (columnID, newTitle) => {
+    try {
+        const column = await columnCollection.findOne({ _id: columnID });
+        if (!column) {
+            throw new Error("Column not found");
+        }
+
+        column.title = newTitle.trim();
+        column.updatedAt = new Date();
+        await column.save();
+
+        console.log(`Column ${columnID} updated to "${newTitle}"`);
+        return column;
+    } catch (err) {
+        console.error("Error editing column name:", err.message);
+        throw err;
+    }
+};
+
 module.exports = {
     getAllBoards,
     createBoard,
@@ -197,4 +216,5 @@ module.exports = {
     getAllColumnID,
     getAllColumn,
     updateColumnOrder,
+    editColumnName,
 };
