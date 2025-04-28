@@ -455,8 +455,8 @@ const displayNewColumn = (columnName, columnID) => {
                     // POST to server
                     await fetch('/board/edit-col', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ columnID, newTitle })
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({columnID, newTitle})
                     });
 
                     // Reload page after editing
@@ -475,8 +475,8 @@ const displayNewColumn = (columnName, columnID) => {
             if (confirm("Are you sure you want to delete this column?")) {
                 await fetch('/board/delete-col', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ columnID })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({columnID})
                 });
 
                 // Reload page after deleting
@@ -841,3 +841,43 @@ const makeAIResponse = async (message) => {
         alert('Error: ' + err.message);  // Handle errors
     }
 };
+
+addEventListener('DOMContentLoaded', () => {
+    console.log(document.querySelectorAll('.board-header'));
+
+    document.querySelectorAll('.board-header').forEach(boardHeader => {
+        const editButton = boardHeader.querySelector('#edit-board-title-button');
+        const boardTitle = boardHeader.querySelector('.board-title');
+
+        editButton.addEventListener('click', async () => {
+            const oldTitle = boardTitle.innerText.trim();
+
+            // Replace the title with an input field
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = oldTitle;
+            input.className = 'edit-title-input';
+            boardTitle.replaceWith(input);
+
+            // Handle Enter key to save the new title
+            input.addEventListener('keydown', async (e) => {
+                if (e.key === 'Enter') {
+                    const newTitle = input.value.trim();
+                    if (!newTitle) return;
+
+                    // POST to the server to update the board title
+                    await fetch('/board/edit-board-title', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({boardTitle: oldTitle, newTitle})
+                    });
+
+                    // Reload the page after editing
+                    window.location.reload();
+                }
+            });
+
+            input.focus();
+        });
+    });
+})

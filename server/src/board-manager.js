@@ -202,6 +202,30 @@ const editColumnName = async (columnID, newTitle) => {
     }
 };
 
+const editBoardTitle = async (boardTitle, newTitle) => {
+    try {
+        // Find the board by title
+        const board = await boardCollection.findOne({ title: boardTitle });
+
+        if (!board) {
+            throw new Error("Board not found");
+        }
+
+        // Update the board title
+        board.title = newTitle.trim();
+        board.updatedAt = new Date();
+
+        // Save the updated board
+        await board.save();
+
+        console.log(`Board title updated from "${boardTitle}" to "${newTitle}"`);
+        return board;
+    } catch (err) {
+        console.error("Error editing board title:", err.message);
+        throw err;
+    }
+};
+
 module.exports = {
     getAllBoards,
     createBoard,
@@ -217,4 +241,6 @@ module.exports = {
     getAllColumn,
     updateColumnOrder,
     editColumnName,
+
+    editBoardTitle,
 };

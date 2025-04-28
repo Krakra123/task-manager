@@ -161,4 +161,24 @@ router.post('/board/update-column-order', async (req, res) => {
     }
 });
 
+router.post('/board/edit-board-title', async (req, res) => {
+    try {
+        const { boardTitle, newTitle } = req.body;
+
+        // Validate input
+        if (!boardTitle || !newTitle || newTitle.trim() === "") {
+            return res.status(400).json({ error: "Board title and new title are required" });
+        }
+
+        // Call the editBoardTitle function
+        const updatedBoard = await boardManager.editBoardTitle(boardTitle, newTitle);
+
+        req.session.board = newTitle;
+        res.status(200).json({ message: "Board title updated successfully", board: updatedBoard });
+    } catch (err) {
+        console.error("Error editing board title:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
