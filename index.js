@@ -134,3 +134,11 @@ app.get('/xddd', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Running on port http://localhost:${PORT}/`);
 });
+
+module.exports = app;  // cho phép import vào test
+
+// Chỉ listen khi không phải môi trường test
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`Running on port http://localhost:${PORT}/`));
+}
