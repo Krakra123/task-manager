@@ -41,20 +41,24 @@ describe('Task Manage features Test', function() {
         boardSelect.click();
     })
 
-    it ('Task Creation', async function() {
+    it ('Column Creation', async function() {
         await driver.sleep(1000);
         for (let i = 0; i < 3; i++) {
             await driver.findElement(By.id('column-create-button')).click();
             await driver.findElement(By.id('board-column-creation-input')).sendKeys('column 0', i, Key.ENTER);
             await driver.sleep(300);
         }
+    })
 
+    it ('Task Creation/Deletion', async function() {
         for (let i = 0; i < 3; i++) {
             await driver.findElement(By.id('task-add-button')).click();
             await driver.findElement(By.id('task-creation-input')).sendKeys('task 0', i, Key.ENTER);
             await driver.sleep(300);
         }
+    })
 
+    it ('Task Creation', async function() {
         await driver.findElement(By.className('task')).click();
         await driver.sleep(300);
 
