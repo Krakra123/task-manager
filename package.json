@@ -5,7 +5,8 @@
   "scripts": {
     "-": "echo \"Error: no test specified\" && exit 1",
     "start": "index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "test": "mocha --timeout 5000 --exit"
   },
   "keywords": [],
   "author": "",
@@ -31,10 +32,7 @@
     "mocha": "^10.0.0",
     "chai": "^4.3.6",
     "supertest": "^6.3.1",
-    "sinon": "^15.0.0"
-  },
-
-  "scripts": {
-    "test": "mocha --timeout 5000 --exit"
+    "sinon": "^15.0.0",
+    "selenium-webdriver": "^4.32.0"
   }
 }
