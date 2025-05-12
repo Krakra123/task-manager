@@ -815,7 +815,7 @@ async function makegenerateDes(taskID) {
 
             prompt += '\n\nPlease remember only answer the task description that are need to fill/change, do not answer anything other than that: Do not try to title it, just answer plain description without any thing else'
 
-
+            console.log(prompt);
             await makeAIResponse(prompt)
                 .then(data => {
                     const taskDesc = document.querySelector('.task-desc');
